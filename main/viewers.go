@@ -9,6 +9,7 @@ import (
 
 func loopViewers(client *twitch.Client, c chan Message, infos chan StreamState) {
 	followed := []string{}
+	var waitTime time.Duration
 
 	for {
 		select {
@@ -22,15 +23,17 @@ func loopViewers(client *twitch.Client, c chan Message, infos chan StreamState) 
 			}
 
 		default:
-			start := time.Now()
-			for _, v := range followed {
-				infos <- fetchViewers(client, v)
+			if waitTime > 0 {
+				time.Sleep(time.Second)
+			} else {
+				start := time.Now()
+				for _, v := range followed {
+					infos <- fetchViewers(client, v)
+				}
+				duration := time.Since(start)
+				waitTime = time.Duration(60 - int(duration.Seconds()))
+				fmt.Println("Following : ", len(followed), " Fetch took : ", duration)
 			}
-			duration := time.Since(start)
-			waitTime := time.Duration(60 - int(duration.Seconds()))
-			print(waitTime)
-			fmt.Println("Following : ", len(followed), " Fetch took : ", duration)
-			time.Sleep(waitTime * time.Second)
 		}
 
 	}
