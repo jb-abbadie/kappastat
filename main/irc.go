@@ -7,23 +7,23 @@ import (
 	"strings"
 )
 
-func loopChat(c chan Message) {
+func setupChat() *ircx.Bot {
 	conf := LoadConfig("config.json")
 	bot := ircx.WithLogin("irc.twitch.tv:6667", conf.ChatLogin, conf.ChatLogin, conf.ChatPass)
 	err := bot.Connect()
-
 	if err != nil {
 		log.Panicln(err)
 	}
-	RegisterHandlers(bot)
+	bot.HandleFunc(irc.RPL_WELCOME, RegisterConnect)
+	bot.HandleFunc(irc.PRIVMSG, MessageHandler)
+	return bot
+}
+
+func loopChat(c chan Message) {
+	bot := setupChat()
 	log.Println("Start")
 	bot.HandleLoop()
 	log.Println("Finish")
-}
-
-func RegisterHandlers(bot *ircx.Bot) {
-	bot.HandleFunc(irc.RPL_WELCOME, RegisterConnect)
-	bot.HandleFunc(irc.PRIVMSG, MessageHandler)
 }
 
 func RegisterConnect(s ircx.Sender, m *irc.Message) {
