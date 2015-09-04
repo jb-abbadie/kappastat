@@ -26,7 +26,7 @@ func loopChat(c chan Message, infos chan ChatEntry) {
 			if !ok {
 				return
 			}
-			messageHandler(bot.Sender, msg)
+			messageHandler(bot.Sender, infos, msg)
 		case msg, ok := <-c:
 			if !ok {
 				return
@@ -47,25 +47,17 @@ func addChannel(s ircx.Sender, name string) {
 	})
 }
 
-func messageHandler(s ircx.Sender, m *irc.Message) {
+func messageHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
 	if m.Command != irc.PRIVMSG {
-		log.Println("Unhandled Message ", m.Command)
+		log.Println("Unhandled Message ", m)
 		return
 	}
 
 	split := strings.Split(m.String(), " ")
 
-	if strings.Contains(split[0], "twitchnotify") {
-		log.Println("Subscriber")
-		log.Println(m)
-	} else {
-		channelName := split[2][1:]
-		sender := split[0]
-		sender = sender[1:strings.IndexRune(sender, '!')]
-		text := strings.Join(split[3:], " ")[1:]
-		entry := ChatEntry{channelName, sender, time.Now(), text}
-		log.Println(entry)
-
-	}
-
+	channelName := split[2][1:]
+	sender := split[0]
+	sender = sender[1:strings.IndexRune(sender, '!')]
+	text := strings.Join(split[3:], " ")[1:]
+	infos <- ChatEntry{channelName, sender, time.Now(), text}
 }
