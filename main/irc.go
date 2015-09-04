@@ -5,6 +5,7 @@ import (
 	"github.com/sorcix/irc"
 	"log"
 	"strings"
+	"time"
 )
 
 func setupChat() *ircx.Bot {
@@ -14,30 +15,57 @@ func setupChat() *ircx.Bot {
 	if err != nil {
 		log.Panicln(err)
 	}
-	bot.HandleFunc(irc.RPL_WELCOME, RegisterConnect)
-	bot.HandleFunc(irc.PRIVMSG, MessageHandler)
 	return bot
 }
 
-func loopChat(c chan Message) {
+func loopChat(c chan Message, infos chan ChatEntry) {
 	bot := setupChat()
-	log.Println("Start")
-	bot.HandleLoop()
-	log.Println("Finish")
+	for {
+		select {
+		case msg, ok := <-bot.Data:
+			if !ok {
+				return
+			}
+			messageHandler(bot.Sender, msg)
+		case msg, ok := <-c:
+			if !ok {
+				return
+			}
+			if msg.s == AddStream {
+				addChannel(bot.Sender, msg.v)
+			}
+		}
+	}
 }
 
-func RegisterConnect(s ircx.Sender, m *irc.Message) {
-	log.Println("Joined")
+func addChannel(s ircx.Sender, name string) {
+	log.Println("#" + name)
+
 	s.Send(&irc.Message{
 		Command: irc.JOIN,
-		Params:  []string{"#lirik"},
+		Params:  []string{"#" + name},
 	})
 }
 
-func MessageHandler(s ircx.Sender, m *irc.Message) {
+func messageHandler(s ircx.Sender, m *irc.Message) {
+	if m.Command != irc.PRIVMSG {
+		log.Println("Unhandled Message ", m.Command)
+		return
+	}
+
 	split := strings.Split(m.String(), " ")
+
 	if strings.Contains(split[0], "twitchnotify") {
 		log.Println("Subscriber")
 		log.Println(m)
+	} else {
+		channelName := split[2][1:]
+		sender := split[0]
+		sender = sender[1:strings.IndexRune(sender, '!')]
+		text := strings.Join(split[3:], " ")[1:]
+		entry := ChatEntry{channelName, sender, time.Now(), text}
+		log.Println(entry)
+
 	}
+
 }

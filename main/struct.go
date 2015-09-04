@@ -15,6 +15,13 @@ type StreamState struct {
 	viewer int
 }
 
+type ChatEntry struct {
+	name   string
+	sender string
+	time   time.Time
+	text   string
+}
+
 type Signal int
 
 const (
