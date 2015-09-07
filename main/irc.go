@@ -4,7 +4,6 @@ import (
 	"github.com/nickvanw/ircx"
 	"github.com/sorcix/irc"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -39,25 +38,60 @@ func loopChat(c chan Message, infos chan ChatEntry) {
 }
 
 func addChannel(s ircx.Sender, name string) {
-	log.Println("#" + name)
-
 	s.Send(&irc.Message{
 		Command: irc.JOIN,
 		Params:  []string{"#" + name},
 	})
 }
 
+func removeChannel(s ircx.Sender, name string) {
+	s.Send(&irc.Message{
+		Command: irc.PART,
+		Params:  []string{"#" + name},
+	})
+}
+
 func messageHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
-	if m.Command != irc.PRIVMSG {
-		log.Println("Unhandled Message ", m)
+	handled := make(map[string]bool)
+	handled[irc.PING] = true
+	handled[irc.PRIVMSG] = true
+	handled[irc.RPL_WELCOME] = true
+	handled[irc.RPL_YOURHOST] = true
+	handled[irc.RPL_CREATED] = true
+	handled[irc.RPL_MYINFO] = true
+	handled[irc.RPL_MOTD] = true
+	handled[irc.RPL_MOTDSTART] = true
+	handled[irc.RPL_ENDOFMOTD] = true
+	handled[irc.RPL_NAMREPLY] = true
+	handled[irc.RPL_ENDOFNAMES] = true
+	handled[irc.JOIN] = true
+
+	if !handled[m.Command] {
+		log.Println("Unhandled Message ", m.Command)
 		return
 	}
+	if m.Command == irc.PING {
+		PingHandler(s, m)
+		return
+	} else if m.Command == irc.PRIVMSG {
+		PrivmsgHandler(s, infos, m)
+	} else if m.Command == irc.JOIN {
+		log.Println("Joined", m.Params[0][1:])
+	}
+}
 
-	split := strings.Split(m.String(), " ")
+func PingHandler(s ircx.Sender, m *irc.Message) {
+	log.Println("Ping answered")
+	s.Send(&irc.Message{
+		Command:  irc.PONG,
+		Params:   m.Params,
+		Trailing: m.Trailing,
+	})
+}
 
-	channelName := split[2][1:]
-	sender := split[0]
-	sender = sender[1:strings.IndexRune(sender, '!')]
-	text := strings.Join(split[3:], " ")[1:]
+func PrivmsgHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
+	channelName := m.Params[0][1:]
+	sender := m.User
+	text := m.Trailing
 	infos <- ChatEntry{channelName, sender, time.Now(), text}
 }
