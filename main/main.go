@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/mrshankly/go-twitch/twitch"
+	"gopkg.in/mgo.v2"
 	"log"
 	"net/http"
 	"os"
@@ -11,38 +12,67 @@ import (
 func main() {
 
 	conf := LoadConfig("config.json")
-
 	os.Setenv("GO-TWITCH_CLIENTID", conf.ClientID)
-	infosViewer := make(chan StreamState)
+	db := setupStorage()
+	ce := db.C("chat_entries")
+	vc := db.C("viewer_count")
+	tracked := make(map[string]bool)
+
+	infosViewer := make(chan ViewerCount)
 	infosChat := make(chan ChatEntry)
 	client := twitch.NewClient(&http.Client{})
 	cViewer := make(chan Message)
 	cChat := make(chan Message)
 	go loopViewers(client, cViewer, infosViewer)
 	go loopChat(cChat, infosChat)
-	time.Sleep(2 * time.Second)
-	tracked := make(map[string]Histo)
-	addStream(&tracked, cViewer, cChat, "lirik")
+	go addStream(&tracked, cViewer, cChat, "lirik")
+	go addStream(&tracked, cViewer, cChat, "castro_1021")
+	go addStream(&tracked, cViewer, cChat, "itmejp")
+	go addStream(&tracked, cViewer, cChat, "jcarverpoker")
+	go addStream(&tracked, cViewer, cChat, "monstercat")
+	time.Sleep(1 * time.Second)
 	for {
 		select {
 		case temp, ok := <-infosViewer:
 			if !ok {
 				return
 			}
-			log.Println(temp)
+			storeViewerCount(vc, temp)
 
 		case temp, ok := <-infosChat:
 			if !ok {
 				return
 			}
-			log.Println(temp)
+			storeChatEntry(ce, temp)
 		default:
 		}
 
 	}
 }
 
-func addStream(tracked *map[string]Histo, cViewer chan Message, cChat chan Message, name string) {
+func setupStorage() *mgo.Database {
+	client, _ := mgo.Dial("127.0.0.1")
+
+	return client.DB("twitch")
+}
+
+func storeChatEntry(c *mgo.Collection, ce ChatEntry) {
+	err := c.Insert(ce)
+	if err != nil {
+		log.Println("error insert", err)
+	}
+	return
+}
+
+func storeViewerCount(c *mgo.Collection, vc ViewerCount) {
+	err := c.Insert(vc)
+	if err != nil {
+		log.Println("error insert", err)
+	}
+	return
+}
+
+func addStream(tracked *map[string]bool, cViewer chan Message, cChat chan Message, name string) {
 	_, present := (*tracked)[name]
 	if present {
 		log.Println("Already Following")
@@ -50,7 +80,19 @@ func addStream(tracked *map[string]Histo, cViewer chan Message, cChat chan Messa
 	}
 	log.Println("Adding ", name)
 
-	(*tracked)[name] = Histo{make(map[time.Time]int), name}
+	(*tracked)[name] = true
 	cChat <- Message{AddStream, name}
 	cViewer <- Message{AddStream, name}
+}
+
+func removeStream(tracked *map[string]bool, cViewer chan Message, cChat chan Message, name string) {
+	_, present := (*tracked)[name]
+	if !present {
+		log.Println("Not Following")
+		return
+	}
+	log.Println("Removing ", name)
+	cChat <- Message{RemoveStream, name}
+	cViewer <- Message{RemoveStream, name}
+	delete(*tracked, name)
 }

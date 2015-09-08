@@ -9,17 +9,17 @@ type Histo struct {
 	streamer string
 }
 
-type StreamState struct {
-	name   string
-	time   time.Time
-	viewer int
+type ViewerCount struct {
+	Channel string
+	Time    time.Time
+	Viewer  int
 }
 
 type ChatEntry struct {
-	name   string
-	sender string
-	time   time.Time
-	text   string
+	Channel string
+	Sender  string
+	Time    time.Time
+	Text    string
 }
 
 type Signal int
