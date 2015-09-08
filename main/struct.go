@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/mrshankly/go-twitch/twitch"
+	"gopkg.in/mgo.v2"
 	"time"
 )
 
@@ -43,4 +45,12 @@ type Controller struct {
 	cViewer     chan Message
 	cChat       chan Message
 	tracked     map[string]bool
+	storage     StorageController
+	twitchAPI   *twitch.Client
+}
+
+type StorageController struct {
+	db    *mgo.Database
+	views *mgo.Collection
+	chat  *mgo.Collection
 }

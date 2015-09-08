@@ -7,15 +7,9 @@ import (
 	"os"
 )
 
-func main() {
+func (c *Controller) Loop() {
 
-	client := twitch.NewClient(&http.Client{})
-	db := setupStorage("twitch")
-	ce := db.C("chat_entries")
-	vc := db.C("viewer_count")
-	c := setupController()
-
-	go loopViewers(client, c.cViewer, c.infosViewer)
+	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
 
 	for {
@@ -24,19 +18,24 @@ func main() {
 			if !ok {
 				return
 			}
-			storeViewerCount(vc, temp)
+			storeViewerCount(c.storage.views, temp)
 
 		case temp, ok := <-c.infosChat:
 			if !ok {
 				return
 			}
-			storeChatEntry(ce, temp)
+			storeChatEntry(c.storage.chat, temp)
 		default:
 		}
 	}
 }
 
-func setupController() (contr *Controller) {
+func SetupController() (contr *Controller) {
+	store := StorageController{
+		db: setupStorage("twitch"),
+	}
+	store.views = store.db.C("viewer_count")
+	store.chat = store.db.C("chat_entries")
 
 	contr = &Controller{
 		config:      LoadConfig("config.json"),
@@ -45,13 +44,15 @@ func setupController() (contr *Controller) {
 		cViewer:     make(chan Message),
 		cChat:       make(chan Message),
 		tracked:     make(map[string]bool),
+		storage:     store,
+		twitchAPI:   twitch.NewClient(&http.Client{}),
 	}
 
 	os.Setenv("GO-TWITCH_CLIENTID", contr.config.ClientID)
 	return
 }
 
-func (c *Controller) addStream(name string) {
+func (c *Controller) AddStream(name string) {
 	_, present := c.tracked[name]
 	if present {
 		log.Println("Already Following")
@@ -64,7 +65,7 @@ func (c *Controller) addStream(name string) {
 	c.cViewer <- Message{AddStream, name}
 }
 
-func (c *Controller) removeStream(name string) {
+func (c *Controller) RemoveStream(name string) {
 	_, present := c.tracked[name]
 	if !present {
 		log.Println("Not Following")
