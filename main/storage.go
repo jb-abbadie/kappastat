@@ -5,10 +5,10 @@ import (
 	"log"
 )
 
-func setupStorage() *mgo.Database {
+func setupStorage(dbName string) *mgo.Database {
 	client, _ := mgo.Dial("127.0.0.1")
 
-	return client.DB("twitch")
+	return client.DB(dbName)
 }
 
 func storeChatEntry(c *mgo.Collection, ce ChatEntry) {

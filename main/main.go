@@ -12,7 +12,7 @@ func main() {
 
 	conf := LoadConfig("config.json")
 	os.Setenv("GO-TWITCH_CLIENTID", conf.ClientID)
-	db := setupStorage()
+	db := setupStorage("twitch")
 	ce := db.C("chat_entries")
 	vc := db.C("viewer_count")
 	tracked := make(map[string]bool)

@@ -6,10 +6,12 @@ import (
 )
 
 func TestStorage(t *testing.T) {
-	db := setupStorage()
+	db := setupStorage("twitch_test")
 
 	ce := db.C("chat_entries")
 	vc := db.C("viewer_count")
+	ce.DropCollection()
+	vc.DropCollection()
 
 	storeChatEntry(ce, ChatEntry{"testChan", "testSender", time.Now(), "testText"})
 	storeViewerCount(vc, ViewerCount{"testChan", time.Now(), 42})
