@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/mrshankly/go-twitch/twitch"
-	"gopkg.in/mgo.v2"
 	"log"
 	"net/http"
 	"os"
@@ -48,28 +47,6 @@ func main() {
 		}
 
 	}
-}
-
-func setupStorage() *mgo.Database {
-	client, _ := mgo.Dial("127.0.0.1")
-
-	return client.DB("twitch")
-}
-
-func storeChatEntry(c *mgo.Collection, ce ChatEntry) {
-	err := c.Insert(ce)
-	if err != nil {
-		log.Println("error insert", err)
-	}
-	return
-}
-
-func storeViewerCount(c *mgo.Collection, vc ViewerCount) {
-	err := c.Insert(vc)
-	if err != nil {
-		log.Println("error insert", err)
-	}
-	return
 }
 
 func addStream(tracked *map[string]bool, cViewer chan Message, cChat chan Message, name string) {
