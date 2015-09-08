@@ -1,5 +1,6 @@
 
 # Twitch Analytics
+https://travis-ci.org/grsakea/ytics.svg?branch=master
 
 ## Dependencies
 
