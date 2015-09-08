@@ -35,3 +35,12 @@ type Message struct {
 	s Signal
 	v string
 }
+
+type Controller struct {
+	config      Config
+	infosChat   chan ChatEntry
+	infosViewer chan ViewerCount
+	cViewer     chan Message
+	cChat       chan Message
+	tracked     map[string]bool
+}

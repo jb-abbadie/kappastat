@@ -5,71 +5,73 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 func main() {
 
-	conf := LoadConfig("config.json")
-	os.Setenv("GO-TWITCH_CLIENTID", conf.ClientID)
+	client := twitch.NewClient(&http.Client{})
 	db := setupStorage("twitch")
 	ce := db.C("chat_entries")
 	vc := db.C("viewer_count")
-	tracked := make(map[string]bool)
+	c := setupController()
 
-	infosViewer := make(chan ViewerCount)
-	infosChat := make(chan ChatEntry)
-	client := twitch.NewClient(&http.Client{})
-	cViewer := make(chan Message)
-	cChat := make(chan Message)
-	go loopViewers(client, cViewer, infosViewer)
-	go loopChat(cChat, infosChat)
-	go addStream(&tracked, cViewer, cChat, "lirik")
-	go addStream(&tracked, cViewer, cChat, "castro_1021")
-	go addStream(&tracked, cViewer, cChat, "itmejp")
-	go addStream(&tracked, cViewer, cChat, "jcarverpoker")
-	go addStream(&tracked, cViewer, cChat, "monstercat")
-	time.Sleep(1 * time.Second)
+	go loopViewers(client, c.cViewer, c.infosViewer)
+	go loopChat(c.cChat, c.infosChat)
+
 	for {
 		select {
-		case temp, ok := <-infosViewer:
+		case temp, ok := <-c.infosViewer:
 			if !ok {
 				return
 			}
 			storeViewerCount(vc, temp)
 
-		case temp, ok := <-infosChat:
+		case temp, ok := <-c.infosChat:
 			if !ok {
 				return
 			}
 			storeChatEntry(ce, temp)
 		default:
 		}
-
 	}
 }
 
-func addStream(tracked *map[string]bool, cViewer chan Message, cChat chan Message, name string) {
-	_, present := (*tracked)[name]
+func setupController() (contr *Controller) {
+
+	contr = &Controller{
+		config:      LoadConfig("config.json"),
+		infosChat:   make(chan ChatEntry),
+		infosViewer: make(chan ViewerCount),
+		cViewer:     make(chan Message),
+		cChat:       make(chan Message),
+		tracked:     make(map[string]bool),
+	}
+
+	os.Setenv("GO-TWITCH_CLIENTID", contr.config.ClientID)
+	return
+}
+
+func (c *Controller) addStream(name string) {
+	_, present := c.tracked[name]
 	if present {
 		log.Println("Already Following")
 		return
 	}
 	log.Println("Adding ", name)
 
-	(*tracked)[name] = true
-	cChat <- Message{AddStream, name}
-	cViewer <- Message{AddStream, name}
+	c.tracked[name] = true
+	c.cChat <- Message{AddStream, name}
+	c.cViewer <- Message{AddStream, name}
 }
 
-func removeStream(tracked *map[string]bool, cViewer chan Message, cChat chan Message, name string) {
-	_, present := (*tracked)[name]
+func (c *Controller) removeStream(name string) {
+	_, present := c.tracked[name]
 	if !present {
 		log.Println("Not Following")
 		return
 	}
 	log.Println("Removing ", name)
-	cChat <- Message{RemoveStream, name}
-	cViewer <- Message{RemoveStream, name}
-	delete(*tracked, name)
+	c.cChat <- Message{RemoveStream, name}
+	c.cViewer <- Message{RemoveStream, name}
+	delete(c.tracked, name)
 }
