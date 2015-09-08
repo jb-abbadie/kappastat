@@ -4,8 +4,6 @@
 
 ## Dependencies
 
-* go-ircx
-* mgo
 * mongodb
 
 ## Tutorial
