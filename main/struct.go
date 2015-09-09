@@ -1,4 +1,4 @@
-package main
+package tics
 
 import (
 	"github.com/mrshankly/go-twitch/twitch"

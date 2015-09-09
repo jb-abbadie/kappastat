@@ -1,4 +1,4 @@
-package main
+package tics
 
 import (
 	"github.com/mrshankly/go-twitch/twitch"
@@ -58,7 +58,7 @@ func (c *Controller) AddStream(name string) {
 		log.Println("Already Following")
 		return
 	}
-	log.Println("Adding ", name)
+	log.Println("Adding", name)
 
 	c.tracked[name] = true
 	c.cChat <- Message{AddStream, name}

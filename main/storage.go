@@ -1,4 +1,4 @@
-package main
+package tics
 
 import (
 	"gopkg.in/mgo.v2"
