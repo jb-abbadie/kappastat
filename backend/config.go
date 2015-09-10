@@ -1,4 +1,4 @@
-package tics
+package backend
 
 import (
 	"encoding/json"
