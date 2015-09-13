@@ -8,6 +8,7 @@ import (
 )
 
 func (c *Controller) Loop() {
+	log.Print("Start Loop")
 
 	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
@@ -16,18 +17,21 @@ func (c *Controller) Loop() {
 		select {
 		case temp, ok := <-c.infosViewer:
 			if !ok {
+				log.Println("InfosViewer failed")
 				return
 			}
 			storeViewerCount(c.storage.views, temp)
 
 		case temp, ok := <-c.infosChat:
 			if !ok {
+				log.Println("InfosChat failed")
 				return
 			}
 			storeChatEntry(c.storage.chat, temp)
 		default:
 		}
 	}
+	log.Println("Loop failed")
 }
 
 func SetupController() (contr *Controller) {
@@ -75,4 +79,12 @@ func (c *Controller) RemoveStream(name string) {
 	c.cChat <- Message{RemoveStream, name}
 	c.cViewer <- Message{RemoveStream, name}
 	delete(c.tracked, name)
+}
+
+func (c *Controller) ListStreams() []string {
+	keys := make([]string, 0, len(c.tracked))
+	for k := range c.tracked {
+		keys = append(keys, k)
+	}
+	return keys
 }
