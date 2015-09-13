@@ -8,42 +8,18 @@ import (
 
 func loopViewers(client *twitch.Client, c chan Message, infos chan ViewerCount) {
 	followed := []string{}
-	var waitTime time.Duration
+	ticker := time.NewTicker(time.Minute).C
 
 	for {
 		select {
 		case msg := <-c:
-			if msg.s == AddStream {
-				followed = append(followed, msg.v)
-			} else if msg.s == Stop {
-				return
-			} else if msg.s == RemoveStream {
-				var index int
-				for i, v := range followed {
-					if v == msg.v {
-						index = i
-					}
-				}
-				followed = append(followed[:index], followed[index+1:]...)
-			} else {
-				log.Println("Signal not handled")
+			followed = followedHandler(followed, msg)
+		case <-ticker:
+			for _, v := range followed {
+				infos <- fetchViewers(client, v)
 			}
-
-		default:
-			if waitTime > 0 {
-				time.Sleep(time.Second)
-				waitTime = waitTime - time.Second
-			} else {
-				start := time.Now()
-				for _, v := range followed {
-					infos <- fetchViewers(client, v)
-				}
-				duration := time.Since(start)
-
-				waitTime = time.Now().Add(time.Minute - duration).Sub(time.Now())
-			}
+			log.Print(len(followed))
 		}
-
 	}
 }
 
