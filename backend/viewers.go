@@ -39,7 +39,8 @@ func loopViewers(client *twitch.Client, c chan Message, infos chan ViewerCount) 
 					infos <- fetchViewers(client, v)
 				}
 				duration := time.Since(start)
-				waitTime = time.Duration((60 - int(duration.Seconds())) * 1000000000)
+
+				waitTime = time.Now().Add(time.Minute - duration).Sub(time.Now())
 				log.Println("Following : ", len(followed), " Fetch took : ", duration, " waitTime : ", waitTime)
 			}
 		}
