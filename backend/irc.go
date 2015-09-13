@@ -81,7 +81,6 @@ func messageHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
 }
 
 func PingHandler(s ircx.Sender, m *irc.Message) {
-	log.Println("Ping answered")
 	s.Send(&irc.Message{
 		Command:  irc.PONG,
 		Params:   m.Params,
