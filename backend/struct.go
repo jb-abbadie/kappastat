@@ -54,3 +54,18 @@ type StorageController struct {
 	views *mgo.Collection
 	chat  *mgo.Collection
 }
+
+type StatEntry struct {
+	Channel string
+
+	Duration time.Duration
+	Start    time.Time
+	End      time.Time
+
+	Resub        int
+	Newsub       int
+	Messages     int
+	UniqueChat   int
+	MostUsedTerm []string
+	Viewer       int
+}
