@@ -44,6 +44,7 @@ type Controller struct {
 	infosViewer chan ViewerCount
 	cViewer     chan Message
 	cChat       chan Message
+	cStat       chan Message
 	tracked     map[string]bool
 	storage     StorageController
 	twitchAPI   *twitch.Client

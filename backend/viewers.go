@@ -18,7 +18,6 @@ func loopViewers(client *twitch.Client, c chan Message, infos chan ViewerCount) 
 			for _, v := range followed {
 				infos <- fetchViewers(client, v)
 			}
-			log.Print(len(followed))
 		}
 	}
 }

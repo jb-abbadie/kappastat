@@ -2,6 +2,7 @@ package backend
 
 import (
 	"gopkg.in/mgo.v2"
+	"log"
 	"strings"
 	"time"
 )
@@ -23,7 +24,7 @@ func loopStat(c chan Message, db *mgo.Database) {
 	for {
 		select {
 		case msg := <-c:
-			followedHandler(followed, msg)
+			followed = followedHandler(followed, msg)
 		case <-oneMinute:
 			go computeStat(db, followed, time.Minute)
 		case <-tenMinute:

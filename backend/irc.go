@@ -75,8 +75,6 @@ func messageHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
 		return
 	} else if m.Command == irc.PRIVMSG {
 		PrivmsgHandler(s, infos, m)
-	} else if m.Command == irc.JOIN {
-		log.Println("Joined", m.Params[0][1:])
 	}
 }
 

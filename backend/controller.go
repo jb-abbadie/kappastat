@@ -12,6 +12,7 @@ func (c *Controller) Loop() {
 
 	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
+	go loopStat(c.cStat, c.storage.db)
 
 	for {
 		select {
@@ -47,6 +48,7 @@ func SetupController() (contr *Controller) {
 		infosViewer: make(chan ViewerCount),
 		cViewer:     make(chan Message),
 		cChat:       make(chan Message),
+		cStat:       make(chan Message),
 		tracked:     make(map[string]bool),
 		storage:     store,
 		twitchAPI:   twitch.NewClient(&http.Client{}),
@@ -67,6 +69,8 @@ func (c *Controller) AddStream(name string) {
 	c.tracked[name] = true
 	c.cChat <- Message{AddStream, name}
 	c.cViewer <- Message{AddStream, name}
+	c.cStat <- Message{AddStream, name}
+	log.Println("Finished adding", name)
 }
 
 func (c *Controller) RemoveStream(name string) {
@@ -78,6 +82,7 @@ func (c *Controller) RemoveStream(name string) {
 	log.Println("Removing ", name)
 	c.cChat <- Message{RemoveStream, name}
 	c.cViewer <- Message{RemoveStream, name}
+	c.cStat <- Message{RemoveStream, name}
 	delete(c.tracked, name)
 }
 
