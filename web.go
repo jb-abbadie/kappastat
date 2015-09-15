@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gocraft/web"
 	"github.com/grsakea/kappastat/backend"
 	"gopkg.in/mgo.v2"
@@ -28,6 +29,7 @@ func launchFrontend(c *backend.Controller) {
 		Middleware((*Context).setContext)
 	router.Get("/following", (*Context).followHandler)
 	router.Get("/viewer/:streamer", (*Context).viewerHandler)
+	router.Get("/add/:streamer", (*Context).addHandler)
 
 	log.Print("Started Web Server")
 	log.Fatal(http.ListenAndServe("127.0.0.1:6969", router))
@@ -53,4 +55,9 @@ func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
 
 	t, _ := template.ParseFiles("viewer.html")
 	t.Execute(w, views)
+}
+
+func (c *Context) addHandler(w web.ResponseWriter, r *web.Request) {
+	Backend.AddStream(r.PathParams["streamer"])
+	fmt.Fprintf(w, "Added %s", r.PathParams["streamer"])
 }
