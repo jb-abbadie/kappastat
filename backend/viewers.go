@@ -26,7 +26,10 @@ func fetchViewers(client *twitch.Client, chan_string string) ViewerCount {
 
 	channel, err := client.Streams.Channel(chan_string)
 	if err != nil {
-		log.Fatal(err)
+		channel, err = client.Streams.Channel(chan_string)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return ViewerCount{chan_string, time.Now(), channel.Stream.Viewers}

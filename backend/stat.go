@@ -15,23 +15,15 @@ type statData struct {
 
 func loopStat(c chan Message, db *mgo.Database) {
 	followed := []string{}
-
-	delay := time.NewTimer(time.Minute).C
-
-	var oneMinute <-chan time.Time
-	var tenMinute <-chan time.Time
-	var oneHour <-chan time.Time
-	var oneDay <-chan time.Time
+	oneMinute := time.NewTicker(time.Minute).C
+	tenMinute := time.NewTicker(10 * time.Minute).C
+	oneHour := time.NewTicker(time.Hour).C
+	oneDay := time.NewTicker(24 * time.Hour).C
 
 	for {
 		select {
 		case msg := <-c:
 			followed = followedHandler(followed, msg)
-		case <-delay:
-			oneMinute = time.NewTicker(time.Minute).C
-			tenMinute = time.NewTicker(10 * time.Minute).C
-			oneHour = time.NewTicker(time.Hour).C
-			oneDay = time.NewTicker(24 * time.Hour).C
 		case <-oneMinute:
 			go computeStat(db, followed, time.Minute)
 		case <-tenMinute:
@@ -50,9 +42,11 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 	from := to.Add(-duration)
 
 	for _, channel := range channels {
-		data := fetchStatData(db, channel, from, to)
-		se := processStatData(from, to, duration, channel, data)
-		storeStatEntry(db.C("stat_entries"), se)
+		data, err := fetchStatData(db, channel, from, to)
+		if err != nil {
+			se := processStatData(from, to, duration, channel, data)
+			storeStatEntry(db.C("stat_entries"), se)
+		}
 	}
 }
 

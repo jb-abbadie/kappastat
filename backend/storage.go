@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"errors"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -29,22 +30,14 @@ func storeViewerCount(c *mgo.Collection, vc ViewerCount) {
 	return
 }
 
-func fetchStatData(db *mgo.Database, channel string, from time.Time, to time.Time) statData {
+func fetchStatData(db *mgo.Database, channel string, from time.Time, to time.Time) (statData, error) {
 	vc := db.C("viewer_count").Find(bson.M{
 		"channel": channel,
 		"time":    bson.M{"$gt": from, "$lt": to}})
 	itV := vc.Iter()
 	lenV, _ := vc.Count()
 	if lenV == 0 {
-		vc := db.C("viewer_count").Find(bson.M{
-			"channel": channel,
-			"time":    bson.M{"$lt": to}}).Limit(1)
-		itV = vc.Iter()
-		lenV, _ = vc.Count()
-
-		if lenV != 1 {
-			log.Panic("Could not fetch stat data for ", channel)
-		}
+		return statData{}, errors.New("No Data Found")
 	}
 	ce := db.C("chat_entries").Find(bson.M{
 		"channel": channel,
@@ -54,7 +47,7 @@ func fetchStatData(db *mgo.Database, channel string, from time.Time, to time.Tim
 	itC := ce.Iter()
 	lenC, _ := ce.Count()
 
-	return statData{itC, lenC, itV, lenV}
+	return statData{itC, lenC, itV, lenV}, nil
 }
 
 func storeStatEntry(c *mgo.Collection, se StatEntry) {
