@@ -20,6 +20,7 @@ type Context struct {
 }
 
 var Backend *backend.Controller
+var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html"))
 
 func launchFrontend(c *backend.Controller) {
 	Backend = c
@@ -43,8 +44,7 @@ func (c *Context) setContext(w web.ResponseWriter, r *web.Request, next web.Next
 
 func (c *Context) followHandler(w web.ResponseWriter, r *web.Request) {
 	liste := Backend.ListStreams()
-	t, _ := template.ParseFiles("following.html")
-	t.Execute(w, liste)
+	templates.ExecuteTemplate(w, "templates/following.html", liste)
 }
 
 func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
@@ -53,8 +53,7 @@ func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
 	streamer := r.PathParams["streamer"]
 	coll.Find(bson.M{"channel": streamer}).All(&views)
 
-	t, _ := template.ParseFiles("viewer.html")
-	t.Execute(w, views)
+	templates.ExecuteTemplate(w, "viewer.html", views)
 }
 
 func (c *Context) addHandler(w web.ResponseWriter, r *web.Request) {
