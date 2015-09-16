@@ -44,7 +44,7 @@ func (c *Context) setContext(w web.ResponseWriter, r *web.Request, next web.Next
 
 func (c *Context) followHandler(w web.ResponseWriter, r *web.Request) {
 	liste := Backend.ListStreams()
-	templates.ExecuteTemplate(w, "templates/following.html", liste)
+	templates.ExecuteTemplate(w, "following.html", liste)
 }
 
 func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
