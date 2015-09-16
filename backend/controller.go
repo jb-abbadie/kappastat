@@ -1,14 +1,20 @@
 package backend
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/mrshankly/go-twitch/twitch"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func (c *Controller) Loop() {
 	log.Print("Start Loop")
+
+	timer := time.NewTimer(time.Minute).C
 
 	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
@@ -29,6 +35,8 @@ func (c *Controller) Loop() {
 				return
 			}
 			storeChatEntry(c.storage.chat, temp)
+		case <-timer:
+			c.saveFollowed()
 		default:
 		}
 	}
@@ -58,11 +66,11 @@ func SetupController() (contr *Controller) {
 	return
 }
 
-func (c *Controller) AddStream(name string) {
+func (c *Controller) AddStream(name string) error {
 	_, present := c.tracked[name]
 	if present {
 		log.Println("Already Following")
-		return
+		return errors.New("Already Following")
 	}
 	log.Println("Adding", name)
 
@@ -71,6 +79,7 @@ func (c *Controller) AddStream(name string) {
 	c.cViewer <- Message{AddStream, name}
 	c.cStat <- Message{AddStream, name}
 	log.Println("Finished adding", name)
+	return nil
 }
 
 func (c *Controller) RemoveStream(name string) {
@@ -92,4 +101,16 @@ func (c *Controller) ListStreams() []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+func (c *Controller) saveFollowed() {
+	liste := make([]string, len(c.tracked))
+
+	i := 0
+	for item, _ := range c.tracked {
+		liste[i] = item
+		i++
+	}
+	d, _ := json.Marshal(liste)
+	ioutil.WriteFile("following", d, 0644)
 }
