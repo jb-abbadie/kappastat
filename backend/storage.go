@@ -9,7 +9,10 @@ import (
 )
 
 func setupStorage(dbName string) *mgo.Database {
-	client, _ := mgo.Dial("127.0.0.1")
+	client, err := mgo.Dial("127.0.0.1")
+	if err != nil {
+		log.Fatal("Could not connect to db")
+	}
 
 	return client.DB(dbName)
 }
