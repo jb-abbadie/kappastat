@@ -43,7 +43,7 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 
 	for _, channel := range channels {
 		data, err := fetchStatData(db, channel, from, to)
-		if err != nil {
+		if err == nil {
 			se := processStatData(from, to, duration, channel, data)
 			storeStatEntry(db.C("stat_entries"), se)
 		}
