@@ -84,9 +84,18 @@ func processStatData(from time.Time, to time.Time, duration time.Duration, chann
 
 	var result ViewerCount
 	ret.Viewer = 0
+	nbZero := 0
 	for data.itV.Next(&result) {
 		ret.Viewer += result.Viewer
+		if result.Viewer == 0 {
+			nbZero--
+		}
 	}
 	ret.Viewer /= data.lenV
+	if nbZero > data.lenV {
+		ret.NonZeroViewer /= (data.lenV - nbZero)
+	} else {
+		ret.NonZeroViewer = 0
+	}
 	return
 }

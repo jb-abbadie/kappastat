@@ -63,10 +63,11 @@ type StatEntry struct {
 	Start    time.Time
 	End      time.Time
 
-	Resub        int
-	Newsub       int
-	Messages     int
-	UniqueChat   int
-	MostUsedTerm []string
-	Viewer       int
+	Resub         int
+	Newsub        int
+	Messages      int
+	UniqueChat    int
+	MostUsedTerm  []string
+	Viewer        int
+	NonZeroViewer int
 }
