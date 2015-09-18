@@ -10,7 +10,6 @@ import (
 func (c *Context) apiViewer(w web.ResponseWriter, r *web.Request) {
 	var ret []backend.ViewerCount
 	c.db.C("viewer_count").Find(bson.M{"channel": r.PathParams["streamer"]}).All(&ret)
-
 	data, _ := json.Marshal(ret)
 	w.Write(data)
 
@@ -18,5 +17,12 @@ func (c *Context) apiViewer(w web.ResponseWriter, r *web.Request) {
 
 func (c *Context) apiFollowing(w web.ResponseWriter, r *web.Request) {
 	data, _ := json.Marshal(c.backend.ListStreams())
+	w.Write(data)
+}
+
+func (c *Context) apiStat(w web.ResponseWriter, r *web.Request) {
+	var ret []backend.ViewerCount
+	c.db.C("stat_entries").Find(bson.M{"channel": r.PathParams["streamer"]}).All(&ret)
+	data, _ := json.Marshal(ret)
 	w.Write(data)
 }

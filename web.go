@@ -30,9 +30,11 @@ func launchFrontend(c *backend.Controller) {
 		Middleware(web.StaticMiddleware("static")).
 		Middleware((*Context).setContext)
 	router.Get("/following", (*Context).followHandler)
+	router.Get("/stat", (*Context).viewerHandler)
 	router.Get("/viewer", (*Context).viewerHandler)
 	router.Get("/add/:streamer", (*Context).addHandler)
 	router.Get("/api/viewer/:streamer", (*Context).apiViewer)
+	router.Get("/api/stat/:streamer", (*Context).apiStat)
 	router.Get("/api/following", (*Context).apiFollowing)
 
 	log.Print("Started Web Server")
