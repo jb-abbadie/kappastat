@@ -20,7 +20,7 @@ type Context struct {
 }
 
 var Backend *backend.Controller
-var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html"))
+var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html", "templates/stat.html"))
 
 func launchFrontend(c *backend.Controller) {
 	Backend = c
@@ -30,7 +30,7 @@ func launchFrontend(c *backend.Controller) {
 		Middleware(web.StaticMiddleware("static")).
 		Middleware((*Context).setContext)
 	router.Get("/following", (*Context).followHandler)
-	router.Get("/stat", (*Context).viewerHandler)
+	router.Get("/stat", (*Context).statHandler)
 	router.Get("/viewer", (*Context).viewerHandler)
 	router.Get("/add/:streamer", (*Context).addHandler)
 	router.Get("/api/viewer/:streamer", (*Context).apiViewer)
@@ -55,8 +55,12 @@ func (c *Context) followHandler(w web.ResponseWriter, r *web.Request) {
 
 func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
 	views := []backend.ViewerCount{}
-
 	templates.ExecuteTemplate(w, "viewer.html", views)
+}
+
+func (c *Context) statHandler(w web.ResponseWriter, r *web.Request) {
+	views := []backend.ViewerCount{}
+	templates.ExecuteTemplate(w, "stat.html", views)
 }
 
 func (c *Context) addHandler(w web.ResponseWriter, r *web.Request) {
