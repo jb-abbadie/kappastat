@@ -8,28 +8,13 @@
                 'packages':['corechart']
                 }]
                 }"></script>
-        <script type="text/javascript">
-google.setOnLoadCallback(drawChart);
-
-function drawChart() {
-    var options = {
-        title: 'Viewership',
-        curveType: 'none',
-        legend: { position: 'bottom' },
-        enableInteractivity: 'true',
-        explorer: {axis:'horizontal'}
-    };
-    var data = google.visualization.arrayToDataTable([['Time', 'Viewership'], 
-    {{ range $vc := . }}[new Date({{$vc.Time}}),{{$vc.Viewer}}],{{ end }}
-    ])
-
-    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
-    chart.draw(data, options);
-}
-        </script>
+        <script type="text/javascript" src="/jquery-2.1.4.js"></script>
+        <script type="text/javascript" src="/chart.js"></script>
     </head>
     <body>
-        <div id="curve_chart" style="width: 1800px; height: 1000px"></div>
+        <h1 id="loading">Loading</h1>
+        <select id="list_streams" name="Viewer">
+        </select>
+        <div id="curve_chart"></div>
     </body>
 </html>
