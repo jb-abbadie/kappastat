@@ -35,6 +35,7 @@ func loopChat(c chan Message, infos chan ChatEntry) {
 			}
 		}
 	}
+	log.Print("IRC loop finished")
 }
 
 func addChannel(s ircx.Sender, name string) {
