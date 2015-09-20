@@ -9,7 +9,8 @@ import (
 
 func setupChat() *ircx.Bot {
 	conf := LoadConfig("config.json")
-	bot := ircx.WithLogin("irc.twitch.tv:6667", conf.ChatLogin, conf.ChatLogin, conf.ChatPass)
+	ircConf := ircx.Config{User: conf.ChatLogin, Password: conf.ChatPass, MaxRetries: 50}
+	bot := ircx.New("irc.twitch.tv:6667", conf.ChatLogin, ircConf)
 	err := bot.Connect()
 	if err != nil {
 		log.Panicln(err)
@@ -23,6 +24,7 @@ func loopChat(c chan Message, infos chan ChatEntry) {
 		select {
 		case msg, ok := <-bot.Data:
 			if !ok {
+				log.Print("IRC bot failed")
 				return
 			}
 			messageHandler(bot.Sender, infos, msg)
