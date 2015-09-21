@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/gocraft/web"
+	"github.com/go-martini/martini"
 	"github.com/grsakea/kappastat/backend"
-	"gopkg.in/mgo.v2"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,56 +13,53 @@ type Test struct {
 	Views []backend.ViewerCount
 }
 
-type Context struct {
-	db      *mgo.Database
-	backend *backend.Controller
-}
+//type Context struct {
+//db      *mgo.Database
+//backend *backend.Controller
+//}
 
 var Backend *backend.Controller
-var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html", "templates/stat.html"))
+var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html", "templates/stat.html", "templates/index.html"))
 
 func launchFrontend(c *backend.Controller) {
+	m := martini.Classic()
 	Backend = c
-	router := web.New(Context{})
-	router.Middleware(web.LoggerMiddleware).
-		Middleware(web.ShowErrorsMiddleware).
-		Middleware(web.StaticMiddleware("static")).
-		Middleware((*Context).setContext)
-	router.Get("/following", (*Context).followHandler)
-	router.Get("/stat", (*Context).statHandler)
-	router.Get("/viewer", (*Context).viewerHandler)
-	router.Get("/add/:streamer", (*Context).addHandler)
-	router.Get("/api/viewer/:streamer", (*Context).apiViewer)
-	router.Get("/api/stat/:streamer", (*Context).apiStat)
-	router.Get("/api/following", (*Context).apiFollowing)
+	m.Use(martini.Static("static"))
+	m.Get("/following", followHandler)
+	m.Get("/stat", statHandler)
+	m.Get("/viewer", viewerHandler)
+	m.Get("/add/:streamer", addHandler)
+	m.Get("/api/viewer/:streamer", apiViewer)
+	m.Get("/api/stat/:streamer", apiStat)
+	m.Get("/api/following", apiFollowing)
 
 	log.Print("Started Web Server")
-	log.Fatal(http.ListenAndServe("127.0.0.1:6969", router))
+	m.Run()
+	//log.Fatal(http.ListenAndServe("127.0.0.1:6969", router))
 }
 
-func (c *Context) setContext(w web.ResponseWriter, r *web.Request, next web.NextMiddlewareFunc) {
-	temp, _ := mgo.Dial("127.0.0.1")
-	c.db = temp.DB("twitch")
-	c.backend = Backend
-	next(w, r)
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	log.Print("lol")
+	fmt.Fprint(w, "lol")
+	//templates.ExecuteTemplate(w, "index.html", nil)
 }
 
-func (c *Context) followHandler(w web.ResponseWriter, r *web.Request) {
+func followHandler(w http.ResponseWriter, r *http.Request) {
 	liste := Backend.ListStreams()
 	templates.ExecuteTemplate(w, "following.html", liste)
 }
 
-func (c *Context) viewerHandler(w web.ResponseWriter, r *web.Request) {
+func viewerHandler(w http.ResponseWriter, r *http.Request) {
 	views := []backend.ViewerCount{}
 	templates.ExecuteTemplate(w, "viewer.html", views)
 }
 
-func (c *Context) statHandler(w web.ResponseWriter, r *web.Request) {
+func statHandler(w http.ResponseWriter, r *http.Request) {
 	views := []backend.ViewerCount{}
 	templates.ExecuteTemplate(w, "stat.html", views)
 }
 
-func (c *Context) addHandler(w web.ResponseWriter, r *web.Request) {
-	Backend.AddStream(r.PathParams["streamer"])
-	fmt.Fprintf(w, "Added %s", r.PathParams["streamer"])
+func addHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	Backend.AddStream(params["streamer"])
+	fmt.Fprintf(w, "Added %s", params["streamer"])
 }

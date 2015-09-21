@@ -2,37 +2,46 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gocraft/web"
+	"github.com/go-martini/martini"
 	"github.com/grsakea/kappastat/backend"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"net/http"
 	"strconv"
 	"time"
 )
 
-func (c *Context) apiViewer(w web.ResponseWriter, r *web.Request) {
+func getDB() *mgo.Database {
+	temp, _ := mgo.Dial("127.0.0.1")
+	return (temp.DB("twitch"))
+}
+
+func apiViewer(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	var ret []backend.ViewerCount
-	c.db.C("viewer_count").Find(bson.M{"channel": r.PathParams["streamer"]}).All(&ret)
+	db := getDB()
+	db.C("viewer_count").Find(bson.M{"channel": params["streamer"]}).All(&ret)
 	data, _ := json.Marshal(ret)
 	w.Write(data)
 
 }
 
-func (c *Context) apiFollowing(w web.ResponseWriter, r *web.Request) {
-	data, _ := json.Marshal(c.backend.ListStreams())
+func apiFollowing(w http.ResponseWriter, r *http.Request) {
+	data, _ := json.Marshal(Backend.ListStreams())
 	w.Write(data)
 }
 
-func (c *Context) apiStat(w web.ResponseWriter, r *web.Request) {
+func apiStat(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	var ret []backend.StatEntry
 	var dur int
 	var err error
+	db := getDB()
 	temp := r.URL.Query().Get("duration")
 	dur, err = strconv.Atoi(temp)
 
 	if err != nil {
 		dur = int(10 * time.Minute.Nanoseconds())
 	}
-	c.db.C("stat_entries").Find(bson.M{"channel": r.PathParams["streamer"], "duration": dur}).All(&ret)
+	db.C("stat_entries").Find(bson.M{"channel": params["streamer"], "duration": dur}).All(&ret)
 	data, _ := json.Marshal(ret)
 	w.Write(data)
 }
