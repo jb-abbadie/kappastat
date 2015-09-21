@@ -37,7 +37,6 @@ func (c *Controller) Loop() {
 			storeChatEntry(c.storage.chat, temp)
 		case <-timer:
 			c.saveFollowed()
-		default:
 		}
 	}
 	log.Println("Loop failed")
