@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/go-martini/martini"
 	"github.com/grsakea/kappastat/backend"
+	"github.com/mrshankly/go-twitch/twitch"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
@@ -26,7 +27,10 @@ func apiViewer(w http.ResponseWriter, r *http.Request, params martini.Params) {
 }
 
 func apiFollowing(w http.ResponseWriter, r *http.Request) {
-	data, _ := json.Marshal(Backend.ListStreams())
+	var ret []twitch.UserS
+	db := getDB()
+	db.C("follow").Find(nil).All(&ret)
+	data, _ := json.Marshal(ret)
 	w.Write(data)
 }
 

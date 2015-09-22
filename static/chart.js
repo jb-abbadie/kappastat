@@ -13,7 +13,8 @@ function drawChart(inp) {
 
 function listFollowing(data) {
         for(i = 0 ; i < data.length;i++) {
-            $('#list_streams').append('<option>' + data[i] +  '</option>');
+            console.log(data[i])
+            $('#list_streams').append('<option value="'+  data[i]['name']+'">' + data[i]['display_name'] +  '</option>');
         }
         $('#loading').hide();
         $('#div_list_streams').show();

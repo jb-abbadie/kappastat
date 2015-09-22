@@ -4,16 +4,19 @@ $(function() {
     console.log("initialized");
 
     $('#list_streams').change( function() {
-        var result = [];
         $('#curve_chart').fadeOut({'duration':500,'queue':true});
-        $.getJSON("/api/stat/" + $('#list_streams option:selected').text(), function(data) {
+        var selected = $('#list_streams option:selected').attr("value");
+        if ( selected !== undefined) {
+        $.getJSON("/api/stat/" + selected , function(data) {
 
+            var result = [];
             for(var i in data) {
                 result.push([new Date(data[i]['Start']), data[i]['Viewer'], data[i]['Messages']]);
             }
             drawChart2(result);
         });
         $('#curve_chart').fadeIn({'duration':500,'queue':true});
+        }
     });
 });
 
