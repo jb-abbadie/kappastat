@@ -1,21 +1,14 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <script type="text/javascript"
-                src="https://www.google.com/jsapi?autoload={
-                'modules':[{
-                'name':'visualization',
-                'version':'1.0',
-                'packages':['line','corechart']
-                }]
-                }"></script>
-        <script type="text/javascript" src="/jquery-2.1.4.js"></script>
-        <script type="text/javascript" src="/chart.js"></script>
-        <script type="text/javascript" src="/stat.js"></script>
-    </head>
-    <body>
-        <h1 id="loading">Loading</h1>
-        <select id="list_streams" name="Viewer">
-        </select>
-        <div id="curve_chart"></div>
+    {{template "head"}}
+    <body role="document">
+        {{template "header"}}
+            <h1 id="loading">Loading</h1>
+            <select id="list_streams" class="btn-group">
+                <option>Choose the streamer</option>
+            </select>
+            <div id="curve_chart"></div>
+        <script type="text/javascript" src="stat.js"></script>
+        <script type="text/javascript" src="chart.js"></script>
     </body>
 </html>

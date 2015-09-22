@@ -5,7 +5,7 @@ $(document).ready(function() {
     $.getJSON("/api/following", listFollowing);
 
     $('#list_streams').change( function() {
-        $('#curve_chart').fadeOut(500);
+        $('#curve_chart').fadeOut(500, function() { drawChart(result);$('#curve_chart').fadeIn(1500);});
         $.getJSON("/api/viewer/" + $('#list_streams option:selected').text(), function(data) {
 
             var result = [];
@@ -13,8 +13,6 @@ $(document).ready(function() {
             for(var i in data) {
                 result.push([new Date(data[i]['Time']), data[i]['Viewer']]);
             }
-            $('#curve_chart').fadeIn(1500);
-            drawChart(result);
         });
     });
 });

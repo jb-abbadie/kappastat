@@ -13,18 +13,19 @@ type Test struct {
 	Views []backend.ViewerCount
 }
 
-//type Context struct {
-//db      *mgo.Database
-//backend *backend.Controller
-//}
-
 var Backend *backend.Controller
-var templates = template.Must(template.ParseFiles("templates/following.html", "templates/viewer.html", "templates/stat.html", "templates/index.html"))
+var templates = template.Must(template.ParseFiles("templates/following.html",
+	"templates/viewer.html",
+	"templates/stat.html",
+	"templates/index.html",
+	"templates/head.inc",
+	"templates/header.inc"))
 
 func launchFrontend(c *backend.Controller) {
 	m := martini.Classic()
 	Backend = c
 	m.Use(martini.Static("static"))
+	m.Get("/", indexHandler)
 	m.Get("/following", followHandler)
 	m.Get("/stat", statHandler)
 	m.Get("/viewer", viewerHandler)
@@ -35,13 +36,10 @@ func launchFrontend(c *backend.Controller) {
 
 	log.Print("Started Web Server")
 	m.Run()
-	//log.Fatal(http.ListenAndServe("127.0.0.1:6969", router))
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Print("lol")
-	fmt.Fprint(w, "lol")
-	//templates.ExecuteTemplate(w, "index.html", nil)
+	templates.ExecuteTemplate(w, "index.html", nil)
 }
 
 func followHandler(w http.ResponseWriter, r *http.Request) {
