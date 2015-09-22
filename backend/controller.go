@@ -1,20 +1,15 @@
 package backend
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/mrshankly/go-twitch/twitch"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 func (c *Controller) Loop() {
 	log.Print("Start Loop")
-
-	timer := time.NewTimer(time.Minute).C
 
 	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
@@ -35,19 +30,18 @@ func (c *Controller) Loop() {
 				return
 			}
 			storeChatEntry(c.storage.chat, temp)
-		case <-timer:
-			c.saveFollowed()
 		}
 	}
 	log.Println("Loop failed")
 }
 
-func SetupController() (contr *Controller) {
+func SetupController(dbName string) (contr *Controller) {
 	store := StorageController{
-		db: setupStorage("twitch"),
+		db: setupStorage(dbName),
 	}
 	store.views = store.db.C("viewer_count")
 	store.chat = store.db.C("chat_entries")
+	store.follow = store.db.C("follow")
 
 	contr = &Controller{
 		config:      LoadConfig("config.json"),
@@ -61,6 +55,8 @@ func SetupController() (contr *Controller) {
 		twitchAPI:   twitch.NewClient(&http.Client{}),
 	}
 
+	contr.loadFollowed()
+
 	os.Setenv("GO-TWITCH_CLIENTID", contr.config.ClientID)
 	return
 }
@@ -72,6 +68,8 @@ func (c *Controller) AddStream(name string) error {
 		return errors.New("Already Following")
 	}
 	log.Println("Adding", name)
+	user, _ := c.twitchAPI.Users.User(name)
+	c.storage.follow.Insert(user)
 
 	c.tracked[name] = true
 	c.cChat <- Message{AddStream, name}
@@ -102,14 +100,16 @@ func (c *Controller) ListStreams() []string {
 	return keys
 }
 
-func (c *Controller) saveFollowed() {
-	liste := make([]string, len(c.tracked))
+func (c *Controller) loadFollowed() {
+	var f []twitch.UserS
+	c.storage.follow.Find(nil).All(&f)
 
-	i := 0
-	for item, _ := range c.tracked {
-		liste[i] = item
-		i++
+	for _, v := range f {
+		c.tracked[v.Name] = true
+		go func(name string) {
+			c.cChat <- Message{AddStream, name}
+			c.cViewer <- Message{AddStream, name}
+			c.cStat <- Message{AddStream, name}
+		}(v.Name)
 	}
-	d, _ := json.Marshal(liste)
-	ioutil.WriteFile("following", d, 0644)
 }

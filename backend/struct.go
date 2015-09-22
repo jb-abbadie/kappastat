@@ -51,9 +51,10 @@ type Controller struct {
 }
 
 type StorageController struct {
-	db    *mgo.Database
-	views *mgo.Collection
-	chat  *mgo.Collection
+	db     *mgo.Database
+	views  *mgo.Collection
+	chat   *mgo.Collection
+	follow *mgo.Collection
 }
 
 type StatEntry struct {

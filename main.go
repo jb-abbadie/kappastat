@@ -13,7 +13,7 @@ func main() {
 }
 
 func launchBackend() *backend.Controller {
-	c := backend.SetupController()
+	c := backend.SetupController("twitch")
 	client := twitch.NewClient(&http.Client{})
 
 	data, err := ioutil.ReadFile("following")
