@@ -3,6 +3,7 @@ package backend
 import (
 	"errors"
 	"github.com/mrshankly/go-twitch/twitch"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
 	"os"
@@ -86,6 +87,7 @@ func (c *Controller) RemoveStream(name string) {
 		return
 	}
 	log.Println("Removing ", name)
+	c.storage.follow.Remove(bson.M{"name": name})
 	c.cChat <- Message{RemoveStream, name}
 	c.cViewer <- Message{RemoveStream, name}
 	c.cStat <- Message{RemoveStream, name}
