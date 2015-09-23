@@ -22,20 +22,6 @@ type ChatEntry struct {
 	Text    string
 }
 
-type Signal int
-
-const (
-	AddStream Signal = iota
-	RemoveStream
-	Stop
-	Restart
-)
-
-type Message struct {
-	s Signal
-	v string
-}
-
 type StatEntry struct {
 	Channel string
 

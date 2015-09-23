@@ -16,9 +16,9 @@ type Controller struct {
 	config      Config
 	infosChat   chan kappastat.ChatEntry
 	infosViewer chan kappastat.ViewerCount
-	cViewer     chan kappastat.Message
-	cChat       chan kappastat.Message
-	cStat       chan kappastat.Message
+	cViewer     chan Message
+	cChat       chan Message
+	cStat       chan Message
 	tracked     map[string]bool
 	storage     StorageController
 	comm        *redis.Client
@@ -30,6 +30,20 @@ type StorageController struct {
 	views  *mgo.Collection
 	chat   *mgo.Collection
 	follow *mgo.Collection
+}
+
+type Signal int
+
+const (
+	AddStream Signal = iota
+	RemoveStream
+	Stop
+	Restart
+)
+
+type Message struct {
+	s Signal
+	v string
 }
 
 func (c *Controller) Loop() {
@@ -85,8 +99,8 @@ func SetupController(dbName string) (contr *Controller) {
 
 	contr = &Controller{
 		config:      LoadConfig("config.json"),
-		infosChat:   make(chan ChatEntry),
-		infosViewer: make(chan ViewerCount),
+		infosChat:   make(chan kappastat.ChatEntry),
+		infosViewer: make(chan kappastat.ViewerCount),
 		cViewer:     make(chan Message),
 		cChat:       make(chan Message),
 		cStat:       make(chan Message),
