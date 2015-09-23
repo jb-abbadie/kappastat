@@ -5,7 +5,8 @@ import (
 )
 
 func main() {
-	launchFrontend(launchBackend())
+	launchBackend()
+	launchFrontend()
 }
 
 func launchBackend() *backend.Controller {

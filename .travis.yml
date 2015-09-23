@@ -9,6 +9,7 @@ install:
     - go get github.com/nickvanw/ircx
     - go get github.com/mrshankly/go-twitch/twitch
     - go get github.com/go-martini/martini
+    - go get gopkg.in/redis.v3
 
 services:
     - mongodb
