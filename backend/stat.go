@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/grsakea/kappastat/common"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
@@ -50,13 +51,13 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 	}
 }
 
-func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret StatEntry) {
+func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret kappastat.StatEntry) {
 	ret.Channel = channel
 	ret.Duration = duration
 	ret.Start = from
 	ret.End = to
 
-	var resultC ChatEntry
+	var resultC kappastat.ChatEntry
 	uniqueChatter := make(map[string]bool)
 	termUsed := make(map[string]int)
 
@@ -82,7 +83,7 @@ func processStatData(from time.Time, to time.Time, duration time.Duration, chann
 	}
 	ret.UniqueChat = len(uniqueChatter)
 
-	var result ViewerCount
+	var result kappastat.ViewerCount
 	ret.Viewer = 0
 	nbZero := 0
 	for data.itV.Next(&result) {

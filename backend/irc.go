@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/grsakea/kappastat/common"
 	"github.com/nickvanw/ircx"
 	"github.com/sorcix/irc"
 	"log"
@@ -18,7 +19,7 @@ func setupChat() *ircx.Bot {
 	return bot
 }
 
-func loopChat(c chan Message, infos chan ChatEntry) {
+func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 	bot := setupChat()
 	for {
 		select {
@@ -54,7 +55,7 @@ func removeChannel(s ircx.Sender, name string) {
 	})
 }
 
-func messageHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
+func messageHandler(s ircx.Sender, infos chan kappastat.ChatEntry, m *irc.Message) {
 	handled := make(map[string]bool)
 	handled[irc.PING] = true
 	handled[irc.PRIVMSG] = true
@@ -89,9 +90,9 @@ func PingHandler(s ircx.Sender, m *irc.Message) {
 	})
 }
 
-func PrivmsgHandler(s ircx.Sender, infos chan ChatEntry, m *irc.Message) {
+func PrivmsgHandler(s ircx.Sender, infos chan kappastat.ChatEntry, m *irc.Message) {
 	channelName := m.Params[0][1:]
 	sender := m.User
 	text := m.Trailing
-	infos <- ChatEntry{channelName, sender, time.Now(), text}
+	infos <- kappastat.ChatEntry{channelName, sender, time.Now(), text}
 }

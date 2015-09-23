@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"github.com/grsakea/kappastat/common"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
@@ -17,7 +18,7 @@ func setupStorage(dbName string) *mgo.Database {
 	return client.DB(dbName)
 }
 
-func storeChatEntry(c *mgo.Collection, ce ChatEntry) {
+func storeChatEntry(c *mgo.Collection, ce kappastat.ChatEntry) {
 	err := c.Insert(ce)
 	if err != nil {
 		log.Println("error insert", err)
@@ -25,7 +26,7 @@ func storeChatEntry(c *mgo.Collection, ce ChatEntry) {
 	return
 }
 
-func storeViewerCount(c *mgo.Collection, vc ViewerCount) {
+func storeViewerCount(c *mgo.Collection, vc kappastat.ViewerCount) {
 	err := c.Insert(vc)
 	if err != nil {
 		log.Println("error insert", err)
@@ -53,7 +54,7 @@ func fetchStatData(db *mgo.Database, channel string, from time.Time, to time.Tim
 	return statData{itC, lenC, itV, lenV}, nil
 }
 
-func storeStatEntry(c *mgo.Collection, se StatEntry) {
+func storeStatEntry(c *mgo.Collection, se kappastat.StatEntry) {
 	err := c.Insert(se)
 	if err != nil {
 		log.Println("error insert", err)

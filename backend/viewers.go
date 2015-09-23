@@ -1,12 +1,13 @@
 package main
 
 import (
+	"github.com/grsakea/kappastat/common"
 	"github.com/mrshankly/go-twitch/twitch"
 	"log"
 	"time"
 )
 
-func loopViewers(client *twitch.Client, c chan Message, infos chan ViewerCount) {
+func loopViewers(client *twitch.Client, c chan Message, infos chan kappastat.ViewerCount) {
 	followed := []string{}
 	ticker := time.NewTicker(time.Minute).C
 
@@ -22,7 +23,7 @@ func loopViewers(client *twitch.Client, c chan Message, infos chan ViewerCount) 
 	}
 }
 
-func fetchViewers(client *twitch.Client, chan_string string) ViewerCount {
+func fetchViewers(client *twitch.Client, chan_string string) kappastat.ViewerCount {
 
 	channel, err := client.Streams.Channel(chan_string)
 	if err != nil {
@@ -32,5 +33,5 @@ func fetchViewers(client *twitch.Client, chan_string string) ViewerCount {
 		}
 	}
 
-	return ViewerCount{chan_string, time.Now(), channel.Stream.Viewers}
+	return kappastat.ViewerCount{chan_string, time.Now(), channel.Stream.Viewers}
 }
