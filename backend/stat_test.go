@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/grsakea/kappastat/common"
 	"gopkg.in/mgo.v2"
 	"testing"
 	"time"
@@ -17,14 +18,14 @@ func TestStatProcessing(t *testing.T) {
 	db.DropDatabase()
 
 	tim := time.Now()
-	ce1 := ChatEntry{"test", "test_user", tim, "This is a test message"}
+	ce1 := kappastat.ChatEntry{"test", "test_user", tim, "This is a test message"}
 	db.C("chat_entries").Insert(ce1)
-	vc1 := ViewerCount{"test", tim, 42}
+	vc1 := kappastat.ViewerCount{"test", tim, 42}
 	db.C("viewer_count").Insert(vc1)
 
 	computeStat(db, []string{"test"}, time.Hour)
 
-	var ret StatEntry
+	var ret kappastat.StatEntry
 	db.C("stat_entries").Find(nil).One(&ret)
 
 	if ret.Duration != time.Hour {

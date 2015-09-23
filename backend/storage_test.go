@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/grsakea/kappastat/common"
 	"testing"
 	"time"
 )
@@ -13,8 +14,8 @@ func TestStorage(t *testing.T) {
 	ce.DropCollection()
 	vc.DropCollection()
 
-	storeChatEntry(ce, ChatEntry{"testChan", "testSender", time.Now(), "testText"})
-	storeViewerCount(vc, ViewerCount{"testChan", time.Now(), 42})
+	storeChatEntry(ce, kappastat.ChatEntry{"testChan", "testSender", time.Now(), "testText"})
+	storeViewerCount(vc, kappastat.ViewerCount{"testChan", time.Now(), 42})
 
 	count, err := ce.Count()
 	if count != 1 {
