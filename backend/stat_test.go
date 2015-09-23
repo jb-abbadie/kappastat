@@ -46,5 +46,4 @@ func TestStatProcessing(t *testing.T) {
 	if ret.Viewer != 42 {
 		t.Error("ViewerCount incorrect")
 	}
-
 }
