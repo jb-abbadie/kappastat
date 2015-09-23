@@ -3,6 +3,7 @@ package backend
 import (
 	"github.com/mrshankly/go-twitch/twitch"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/redis.v3"
 	"time"
 )
 
@@ -47,6 +48,7 @@ type Controller struct {
 	cStat       chan Message
 	tracked     map[string]bool
 	storage     StorageController
+	comm        *redis.Client
 	twitchAPI   *twitch.Client
 }
 

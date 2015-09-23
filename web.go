@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"github.com/go-martini/martini"
 	"github.com/grsakea/kappastat/backend"
+	"github.com/mrshankly/go-twitch/twitch"
+	"gopkg.in/redis.v3"
 	"html/template"
 	"log"
 	"net/http"
 )
 
-var Backend *backend.Controller
+//var Backend *backend.Controller
 var templates = template.Must(template.ParseFiles("templates/following.html",
 	"templates/viewer.html",
 	"templates/stat.html",
@@ -17,15 +19,16 @@ var templates = template.Must(template.ParseFiles("templates/following.html",
 	"templates/head.inc",
 	"templates/header.inc"))
 
-func launchFrontend(c *backend.Controller) {
+func launchFrontend() {
 	m := martini.Classic()
-	Backend = c
+	//Backend = c
 	m.Use(martini.Static("static"))
 	m.Get("/", indexHandler)
 	m.Get("/following", followHandler)
 	m.Get("/stat", statHandler)
 	m.Get("/viewer", viewerHandler)
 	m.Get("/add/:streamer", addHandler)
+	m.Get("/del/:streamer", delHandler)
 	m.Get("/api/viewer/:streamer", apiViewer)
 	m.Get("/api/stat/:streamer", apiStat)
 	m.Get("/api/following", apiFollowing)
@@ -39,7 +42,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func followHandler(w http.ResponseWriter, r *http.Request) {
-	liste := Backend.ListStreams()
+	var liste []twitch.UserS
+	db := getDB()
+	db.C("follow").Find(nil).All(&liste)
+	//liste := Backend.ListStreams()
 	templates.ExecuteTemplate(w, "following.html", liste)
 }
 
@@ -54,6 +60,23 @@ func statHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	Backend.AddStream(params["streamer"])
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	client.LPush("add", params["streamer"])
+	client.Close()
 	fmt.Fprintf(w, "Added %s", params["streamer"])
+}
+
+func delHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	client.LPush("del", params["streamer"])
+	client.Close()
+	fmt.Fprintf(w, "Removed %s", params["streamer"])
 }
