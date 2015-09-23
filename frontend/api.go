@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/go-martini/martini"
-	"github.com/grsakea/kappastat/backend"
+	"github.com/grsakea/kappastat/common"
 	"github.com/mrshankly/go-twitch/twitch"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -18,7 +18,7 @@ func getDB() *mgo.Database {
 }
 
 func apiViewer(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	var ret []backend.ViewerCount
+	var ret []kappastat.ViewerCount
 	db := getDB()
 	db.C("viewer_count").Find(bson.M{"channel": params["streamer"]}).All(&ret)
 	data, _ := json.Marshal(ret)
@@ -35,7 +35,7 @@ func apiFollowing(w http.ResponseWriter, r *http.Request) {
 }
 
 func apiStat(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	var ret []backend.StatEntry
+	var ret []kappastat.StatEntry
 	var dur int
 	var err error
 	db := getDB()

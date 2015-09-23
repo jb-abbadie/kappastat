@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/go-martini/martini"
-	"github.com/grsakea/kappastat/backend"
+	"github.com/grsakea/kappastat/common"
 	"github.com/mrshankly/go-twitch/twitch"
 	"gopkg.in/redis.v3"
 	"html/template"
@@ -11,7 +11,6 @@ import (
 	"net/http"
 )
 
-//var Backend *backend.Controller
 var templates = template.Must(template.ParseFiles("templates/following.html",
 	"templates/viewer.html",
 	"templates/stat.html",
@@ -21,7 +20,6 @@ var templates = template.Must(template.ParseFiles("templates/following.html",
 
 func launchFrontend() {
 	m := martini.Classic()
-	//Backend = c
 	m.Use(martini.Static("static"))
 	m.Get("/", indexHandler)
 	m.Get("/following", followHandler)
@@ -45,17 +43,16 @@ func followHandler(w http.ResponseWriter, r *http.Request) {
 	var liste []twitch.UserS
 	db := getDB()
 	db.C("follow").Find(nil).All(&liste)
-	//liste := Backend.ListStreams()
 	templates.ExecuteTemplate(w, "following.html", liste)
 }
 
 func viewerHandler(w http.ResponseWriter, r *http.Request) {
-	views := []backend.ViewerCount{}
+	views := []kappastat.ViewerCount{}
 	templates.ExecuteTemplate(w, "viewer.html", views)
 }
 
 func statHandler(w http.ResponseWriter, r *http.Request) {
-	views := []backend.ViewerCount{}
+	views := []kappastat.ViewerCount{}
 	templates.ExecuteTemplate(w, "stat.html", views)
 }
 
