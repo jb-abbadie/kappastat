@@ -1,9 +1,6 @@
-package main
+package kappastat
 
 import (
-	"github.com/mrshankly/go-twitch/twitch"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/redis.v3"
 	"time"
 )
 
@@ -37,26 +34,6 @@ const (
 type Message struct {
 	s Signal
 	v string
-}
-
-type Controller struct {
-	config      Config
-	infosChat   chan ChatEntry
-	infosViewer chan ViewerCount
-	cViewer     chan Message
-	cChat       chan Message
-	cStat       chan Message
-	tracked     map[string]bool
-	storage     StorageController
-	comm        *redis.Client
-	twitchAPI   *twitch.Client
-}
-
-type StorageController struct {
-	db     *mgo.Database
-	views  *mgo.Collection
-	chat   *mgo.Collection
-	follow *mgo.Collection
 }
 
 type StatEntry struct {

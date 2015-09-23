@@ -2,13 +2,35 @@ package main
 
 import (
 	"errors"
+	"github.com/grsakea/kappastat/common"
 	"github.com/mrshankly/go-twitch/twitch"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v3"
 	"log"
 	"net/http"
 	"os"
 	"time"
 )
+
+type Controller struct {
+	config      Config
+	infosChat   chan kappastat.ChatEntry
+	infosViewer chan kappastat.ViewerCount
+	cViewer     chan kappastat.Message
+	cChat       chan kappastat.Message
+	cStat       chan kappastat.Message
+	tracked     map[string]bool
+	storage     StorageController
+	comm        *redis.Client
+	twitchAPI   *twitch.Client
+}
+
+type StorageController struct {
+	db     *mgo.Database
+	views  *mgo.Collection
+	chat   *mgo.Collection
+	follow *mgo.Collection
+}
 
 func (c *Controller) Loop() {
 	log.Print("Start Loop")
