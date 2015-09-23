@@ -9,10 +9,6 @@ import (
 	"net/http"
 )
 
-type Test struct {
-	Views []backend.ViewerCount
-}
-
 var Backend *backend.Controller
 var templates = template.Must(template.ParseFiles("templates/following.html",
 	"templates/viewer.html",
