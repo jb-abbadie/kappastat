@@ -22,8 +22,9 @@ func (b *IrcBot) loop() {
 		b.conn.SetDeadline(time.Now().Add(300 * time.Second))
 		msg, err := b.reader.Decode()
 		if err != nil {
-			log.Print("IRC channel closed", err)
+			log.Print("IRC channel closed :", err)
 			close(b.data)
+			return
 		}
 		b.data <- msg
 	}
