@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/grsakea/kappastat/common"
+	"github.com/robfig/cron"
 	"gopkg.in/mgo.v2"
 	"strings"
 	"time"
@@ -14,25 +15,23 @@ type statData struct {
 	lenV int
 }
 
-func loopStat(c chan Message, db *mgo.Database) {
+func loopStat(ch chan Message, db *mgo.Database) {
 	followed := []string{}
-	oneMinute := time.NewTicker(time.Minute).C
-	tenMinute := time.NewTicker(10 * time.Minute).C
-	oneHour := time.NewTicker(time.Hour).C
-	oneDay := time.NewTicker(24 * time.Hour).C
 
+	c := cron.New()
+
+	c.AddFunc("0 * * * * *", func() { computeStat(db, followed, 01*time.Minute) })
+	c.AddFunc("0 */5 * * * *", func() { computeStat(db, followed, 05*time.Minute) })
+	c.AddFunc("0 */15 * * * *", func() { computeStat(db, followed, 15*time.Minute) })
+	c.AddFunc("@hourly", func() { computeStat(db, followed, time.Hour) })
+	c.AddFunc("0 0 */12 * * *", func() { computeStat(db, followed, 12*time.Hour) })
+	c.AddFunc("@daily", func() { computeStat(db, followed, 24*time.Hour) })
+
+	c.Start()
 	for {
 		select {
-		case msg := <-c:
+		case msg := <-ch:
 			followed = followedHandler(followed, msg)
-		case <-oneMinute:
-			go computeStat(db, followed, time.Minute)
-		case <-tenMinute:
-			go computeStat(db, followed, 10*time.Minute)
-		case <-oneHour:
-			go computeStat(db, followed, time.Hour)
-		case <-oneDay:
-			go computeStat(db, followed, 24*time.Hour)
 		}
 
 	}
