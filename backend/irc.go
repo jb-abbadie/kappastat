@@ -26,42 +26,63 @@ func setupChat() *IrcBot {
 
 func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 	bot := setupChat()
+	var followed []string
 	for {
 		select {
 		case msg, ok := <-bot.data:
 			if !ok {
 				log.Print("IRC bot failed")
+				backoff := 30 * time.Second
+				err := bot.connect()
+				for err != nil {
+					err = bot.connect()
+					time.Sleep(backoff)
+					backoff *= 2
+					log.Print("Error connecting", err)
+					log.Print("Retrying in ", backoff)
+				}
 				return
 			}
-			messageHandler(bot.writer, infos, msg)
+			messageHandler(followed, bot.writer, infos, msg)
 		case msg, ok := <-c:
 			if !ok {
 				return
 			}
 			if msg.s == AddStream {
-				addChannel(bot.writer, msg.v)
+				followed = addChannel(followed, bot.writer, msg.v)
 			} else if msg.s == RemoveStream {
-				removeChannel(bot.writer, msg.v)
+				followed = removeChannel(followed, bot.writer, msg.v)
 			}
 		}
 	}
 }
 
-func addChannel(s *irc.Encoder, name string) {
+func addChannel(f []string, s *irc.Encoder, name string) []string {
+	f = append(f, name)
 	s.Encode(&irc.Message{
 		Command: irc.JOIN,
 		Params:  []string{"#" + name},
 	})
+	return f
 }
 
-func removeChannel(s *irc.Encoder, name string) {
+func removeChannel(f []string, s *irc.Encoder, name string) []string {
+	var index int
+	for i, v := range f {
+		if v == name {
+			index = i
+		}
+	}
+	f = append(f[:index], f[index+1:]...)
+
 	s.Encode(&irc.Message{
 		Command: irc.PART,
 		Params:  []string{"#" + name},
 	})
+	return f
 }
 
-func messageHandler(s *irc.Encoder, infos chan kappastat.ChatEntry, m *irc.Message) {
+func messageHandler(f []string, s *irc.Encoder, infos chan kappastat.ChatEntry, m *irc.Message) {
 	handled := make(map[string]bool)
 	handled[irc.PING] = true
 	handled[irc.PRIVMSG] = true
@@ -85,6 +106,10 @@ func messageHandler(s *irc.Encoder, infos chan kappastat.ChatEntry, m *irc.Messa
 		return
 	} else if m.Command == irc.PRIVMSG {
 		PrivmsgHandler(infos, m)
+	} else if m.Command == irc.RPL_ENDOFMOTD {
+		for i := range f {
+			addChannel(f, s, f[i])
+		}
 	}
 }
 
