@@ -43,7 +43,7 @@ func apiStat(w http.ResponseWriter, r *http.Request, params martini.Params) {
 	dur, err = strconv.Atoi(temp)
 
 	if err != nil {
-		dur = int(10 * time.Minute.Nanoseconds())
+		dur = int(5 * time.Minute.Nanoseconds())
 	}
 	db.C("stat_entries").Find(bson.M{"channel": params["streamer"], "duration": dur}).All(&ret)
 	data, _ := json.Marshal(ret)
