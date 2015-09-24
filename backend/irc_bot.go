@@ -63,5 +63,7 @@ func (b *IrcBot) connect() error {
 		}
 	}
 
+	go b.loop()
+
 	return nil
 }
