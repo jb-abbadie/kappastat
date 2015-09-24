@@ -20,11 +20,11 @@ func loopStat(ch chan Message, db *mgo.Database) {
 
 	c := cron.New()
 
-	c.AddFunc("0 01 * * * *", func() { computeStat(db, followed, 01*time.Minute) })
-	c.AddFunc("0 05 * * * *", func() { computeStat(db, followed, 05*time.Minute) })
-	c.AddFunc("0 15 * * * *", func() { computeStat(db, followed, 15*time.Minute) })
+	c.AddFunc("0 * * * * *", func() { computeStat(db, followed, 01*time.Minute) })
+	c.AddFunc("0 */5 * * * *", func() { computeStat(db, followed, 05*time.Minute) })
+	c.AddFunc("0 */15 * * * *", func() { computeStat(db, followed, 15*time.Minute) })
 	c.AddFunc("@hourly", func() { computeStat(db, followed, time.Hour) })
-	c.AddFunc("0 0 0,12 * * *", func() { computeStat(db, followed, 12*time.Hour) })
+	c.AddFunc("0 0 */12 * * *", func() { computeStat(db, followed, 12*time.Hour) })
 	c.AddFunc("@daily", func() { computeStat(db, followed, 24*time.Hour) })
 
 	c.Start()
