@@ -19,7 +19,7 @@ type IrcBot struct {
 
 func (b *IrcBot) loop() {
 	for {
-		b.conn.SetDeadline(time.Now().Add(300 * time.Second))
+		b.conn.SetDeadline(time.Now().Add(60 * time.Second))
 		msg, err := b.reader.Decode()
 		if err != nil {
 			log.Print("IRC channel closed :", err)
@@ -31,10 +31,12 @@ func (b *IrcBot) loop() {
 }
 
 func (b *IrcBot) connect() error {
+	log.Print("connecting to IRC")
 	b.data = make(chan *irc.Message)
 	var err error
 	b.conn, err = net.Dial("tcp", b.server)
 	if err != nil {
+		log.Print("Error connecting", err)
 		return err
 	}
 

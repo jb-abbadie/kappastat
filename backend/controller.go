@@ -80,7 +80,6 @@ func (c *Controller) Loop() {
 			}
 		}
 	}
-	log.Println("Loop failed")
 }
 
 func SetupController(dbName string) (contr *Controller) {
