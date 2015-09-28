@@ -76,7 +76,7 @@ func (c *Controller) Loop() {
 				c.AddStream(val)
 			}
 			for c.comm.LLen("del").Val() != 0 {
-				c.AddStream(c.comm.LPop("del").String())
+				c.RemoveStream(c.comm.LPop("del").String())
 			}
 		}
 	}
