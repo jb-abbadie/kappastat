@@ -41,9 +41,10 @@ func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 					log.Print("Error connecting", err)
 					log.Print("Retrying in ", backoff)
 				}
-				return
+				log.Print("Reconnected ", err, msg)
+			} else {
+				messageHandler(followed, bot.writer, infos, msg)
 			}
-			messageHandler(followed, bot.writer, infos, msg)
 		case msg, ok := <-c:
 			if !ok {
 				return
@@ -97,6 +98,10 @@ func messageHandler(f []string, s *irc.Encoder, infos chan kappastat.ChatEntry, 
 	handled[irc.RPL_ENDOFNAMES] = true
 	handled[irc.JOIN] = true
 
+	if m.Command == irc.RPL_ENDOFMOTD {
+		log.Print(m)
+	}
+
 	if !handled[m.Command] {
 		log.Println("Unhandled Message ", m.Command)
 		return
@@ -110,6 +115,7 @@ func messageHandler(f []string, s *irc.Encoder, infos chan kappastat.ChatEntry, 
 		for i := range f {
 			addChannel(f, s, f[i])
 		}
+		log.Print("Re joined", len(f))
 	}
 }
 
