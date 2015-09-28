@@ -17,5 +17,8 @@ function listFollowing(data) {
             $('#list_streams').append('<option value="'+  data[i]['name']+'">' + data[i]['display_name'] +  '</option>');
         }
         $('#loading').hide();
-        $('#div_list_streams').show();
+        $('#list_streams').fadeIn({'duration':500});
+        $('#list_duration').fadeIn({'duration':500});
+        $('#go_button').fadeIn({'duration':500});
+        $('#curve_chart').fadeIn({'duration':500});
 }

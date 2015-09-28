@@ -4,9 +4,18 @@
     <body role="document">
         {{template "header"}}
             <h1 id="loading">Loading</h1>
-            <select id="list_streams" class="btn-group">
+            <select id="list_streams">
                 <option>Choose the streamer</option>
             </select>
+            <select id="list_duration">
+                <option>Choose the duration</option>
+                <option time=1>1 Minute</option>
+                <option time=5>5 Minutes</option>
+                <option time=15>15 Minutes</option>
+                <option time=30>30 Minutes</option>
+                <option time=60>1 Hour</option>
+            </select>
+            <button id="go_button">Go</button>
             <div id="curve_chart"></div>
         <script type="text/javascript" src="stat.js"></script>
         <script type="text/javascript" src="chart.js"></script>
