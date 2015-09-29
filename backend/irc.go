@@ -31,19 +31,10 @@ func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 		select {
 		case msg, ok := <-bot.data:
 			if !ok {
-				log.Print("IRC bot failed")
-				backoff := 30 * time.Second
-				err := bot.connect()
-				for err != nil {
-					err = bot.connect()
-					time.Sleep(backoff)
-					backoff *= 2
-					log.Print("Error connecting", err)
-					log.Print("Retrying in ", backoff)
-				}
-				log.Print("Reconnected ", err, msg)
+				bot.reconnect()
+				log.Print("Reconnected ", msg)
 			} else {
-				messageHandler(followed, bot.writer, infos, msg)
+				go messageHandler(followed, bot.writer, infos, msg)
 			}
 		case msg, ok := <-c:
 			if !ok {

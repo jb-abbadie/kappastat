@@ -25,8 +25,22 @@ func (b *IrcBot) loop() {
 			log.Print("IRC channel closed :", err)
 			close(b.data)
 			return
+		} else {
+			b.data <- msg
 		}
-		b.data <- msg
+	}
+}
+
+func (b *IrcBot) reconnect() {
+	var err error
+	b.conn, err = net.Dial("tcp", b.server)
+	backoff := 30 * time.Second
+	for err != nil {
+		b.conn, err = net.Dial("tcp", b.server)
+		time.Sleep(backoff)
+		backoff *= 2
+		log.Print("Error connecting", err)
+		log.Print("Retrying in ", backoff)
 	}
 }
 
