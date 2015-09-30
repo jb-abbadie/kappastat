@@ -9,7 +9,6 @@ $(function() {
     console.log("initialized");
 
     $('#go_button').click( function() {
-        //$('#curve_chart').fadeOut({'duration':500,'queue':true});
         var selected = $('#list_streams option:selected').attr("value");
         var duration = $('#list_duration option:selected').attr("time");
         if ( duration === undefined) {
@@ -20,7 +19,7 @@ $(function() {
 
             var result = [];
             for(var i in data) {
-                result.push([new Date(data[i]['Start']), data[i]['Viewer'], data[i]['Messages']]);
+                result.push([new Date(data[i]['Start']), data[i]['Resub'], data[i]['Messages']]);
             }
             updateChart(chart, result);
         });
@@ -29,14 +28,16 @@ $(function() {
 });
 
 function initChart() {
-    var chart = new google.charts.Line(document.getElementById('curve_chart'));
+    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
     return chart;
 }
 
 function updateChart(chart, inp) {
     var options = {
-        title: 'Test',
-        curveType: 'function',
+        title: 'This is a chart',
+        explorer: {
+            "axis":"horizontal",
+        },
         animation: {
             "duration":1000,
             "easing":"inAndOut",
@@ -56,5 +57,5 @@ function updateChart(chart, inp) {
     data.addColumn('number', "Chat Messages");
     data.addRows(inp);
 
-    chart.draw(data, google.charts.Line.convertOptions(options));
+    chart.draw(data, options);
 }
