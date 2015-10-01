@@ -1,6 +1,7 @@
 {{define "head"}}
 <head>
         <meta charset="utf-8">
+        <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
         <link href="skeleton.css" rel="stylesheet">
         <link href="normalize.css" rel="stylesheet">
         <link href="theme.css" rel="stylesheet">

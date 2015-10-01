@@ -3,21 +3,47 @@
     {{template "head"}}
     <body role="document">
         {{template "header"}}
+        <div class="container">
             <h1 id="loading">Loading</h1>
-            <select id="list_streams">
-                <option>Choose the streamer</option>
-            </select>
-            <select id="list_duration">
-                <option>Choose the duration</option>
-                <option time=1>1 Minute</option>
-                <option time=5>5 Minutes</option>
-                <option time=15>15 Minutes</option>
-                <option time=60>1 Hour</option>
-                <option time=720>Half-Day</option>
-                <option time=1440>Day</option>
-            </select>
-            <button id="go_button">Go</button>
-            <div id="curve_chart"></div>
+            <div class="row">
+                <div class ="six columns">
+                    <label for="list_streams">Streamer :</label>
+                    <select class="u-full-width" id="list_streams">
+                        <option>Choose the streamer</option>
+                    </select>
+                </div>
+                <div class="six columns">
+                    <label for="list_duration">Duration :</label>
+                    <select class="u-full-width" id="list_duration">
+                        <option>Choose the duration</option>
+                        <option time=1>1 Minute</option>
+                        <option time=5>5 Minutes</option>
+                        <option time=15>15 Minutes</option>
+                        <option time=60>1 Hour</option>
+                        <option time=720>Half-Day</option>
+                        <option time=1440>Day</option>
+                    </select>
+                </div>
+            </div>
+            <label class="example-send-yourself-copy">
+                <input type="checkbox" id="cb-views">
+                <span class="label-body">Viewership</span>
+            </label>
+            <label class="example-send-yourself-copy">
+                <input type="checkbox" id="cb-chat">
+                <span class="label-body">Chat Activity</span>
+            </label>
+            <label class="example-send-yourself-copy">
+                <input type="checkbox" id="cb-sub">
+                <span class="label-body">New Subscriber</span>
+            </label>
+            <label class="example-send-yourself-copy">
+                <input type="checkbox" id="cb-resub">
+                <span class="label-body">ReSub</span>
+            </label>
+            <button class="button-primary" id="go_button">Go</button>
+            <div id="curve_chart" class="u-full-width"></div>
+        </div>
         <script type="text/javascript" src="stat.js"></script>
         <script type="text/javascript" src="chart.js"></script>
     </body>

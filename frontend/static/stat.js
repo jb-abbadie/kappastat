@@ -2,10 +2,10 @@ $(function() {
     $('#list_streams').hide();
     $('#list_duration').hide();
     $('#go_button').hide();
-    $('#curve_chart').hide();
+    //$('#curve_chart').hide();
     $.getJSON("/api/following", listFollowing);
     var chart = initChart();
-    updateChart(chart,[])
+    updateChart(chart,[["Time","Viewers"],[0,0],[1,0]])
     console.log("initialized");
 
     $('#go_button').click( function() {
@@ -18,8 +18,10 @@ $(function() {
         $.getJSON("/api/stat/" + selected ,{"duration":duration}, function(data) {
 
             var result = [];
+            result.push(addTableHeader());
+            console.log(result)
             for(var i in data) {
-                result.push([new Date(data[i]['Start']), data[i]['Resub'], data[i]['Messages']]);
+                result.push(filterResult(data[i]));
             }
             updateChart(chart, result);
         });
@@ -35,6 +37,8 @@ function initChart() {
 function updateChart(chart, inp) {
     var options = {
         title: 'This is a chart',
+        fontName: "Raleway",
+        fontSize: 15,
         explorer: {
             "axis":"horizontal",
         },
@@ -42,20 +46,45 @@ function updateChart(chart, inp) {
             "duration":1000,
             "easing":"inAndOut",
         },
-        series : {
-            0:{axis: 'Viewer'},
-            1:{axis: 'Messages'},
-        },
-        vAxes: {
-            0: {title: "Viewership"},
-            1: {title: "Daylight"},
-        },
     };
-    var data = new google.visualization.DataTable();
-    data.addColumn('date', 'Time');
-    data.addColumn('number', "Viewer");
-    data.addColumn('number', "Chat Messages");
-    data.addRows(inp);
+    console.log(data)
+    var data = new google.visualization.arrayToDataTable(inp);
 
     chart.draw(data, options);
+}
+
+function addTableHeader() {
+    var ret = [];
+    ret.push("Time");
+    if ($("#cb-views").is(':checked()')) {
+        ret.push("Viewer");
+    }
+    if ($("#cb-chat").is(':checked()')) {
+        ret.push("Messages");
+    }
+    if ($("#cb-sub").is(':checked()')) {
+        ret.push("Newsub");
+    }
+    if ($("#cb-resub").is(':checked()')) {
+        ret.push("Resub");
+    }
+    return ret;
+}
+
+function filterResult(data) {
+    var ret = [];
+    ret.push(new Date(data["Start"]));
+    if ($("#cb-views").is(':checked()')) {
+        ret.push(data["Viewer"]);
+    }
+    if ($("#cb-chat").is(':checked()')) {
+        ret.push(data["Messages"]);
+    }
+    if ($("#cb-sub").is(':checked()')) {
+        ret.push(data["Newsub"]);
+    }
+    if ($("#cb-resub").is(':checked()')) {
+        ret.push(data["Resub"]);
+    }
+    return ret;
 }

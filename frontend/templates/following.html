@@ -1,2 +1,14 @@
-{{ range . }}{{.DisplayName}}
-{{ end }}
+<!DOCTYPE html>
+<html>
+    {{template "head"}}
+    <body role="document">
+        {{template "header"}}
+        <div class="container">
+        <ul>
+        {{ range . }}
+        <li>{{.DisplayName}}</li>
+        {{ end }}
+        </ul>
+        </div>
+    </body>
+</html>
