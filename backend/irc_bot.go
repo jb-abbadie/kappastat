@@ -32,6 +32,7 @@ func (b *IrcBot) loop() {
 }
 
 func (b *IrcBot) reconnect() {
+	b.data = make(chan *irc.Message)
 	var err error
 	b.conn, err = net.Dial("tcp", b.server)
 	backoff := 30 * time.Second
