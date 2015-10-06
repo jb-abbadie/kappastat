@@ -29,7 +29,7 @@ func fetchViewers(client *twitch.Client, chan_string string) kappastat.ViewerCou
 	if err != nil {
 		channel, err = client.Streams.Channel(chan_string)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 	}
 
