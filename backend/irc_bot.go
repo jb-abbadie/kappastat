@@ -15,6 +15,7 @@ type IrcBot struct {
 	reader *irc.Decoder
 	writer *irc.Encoder
 	data   chan *irc.Message
+	rooms  []string
 }
 
 func (b *IrcBot) loop() {
@@ -43,6 +44,37 @@ func (b *IrcBot) reconnect() {
 		log.Print("Error connecting", err)
 		log.Print("Retrying in ", backoff)
 	}
+
+	for _, v := range b.rooms {
+		b.writer.Encode(&irc.Message{
+			Command: irc.JOIN,
+			Params:  []string{"#" + v},
+		})
+	}
+
+}
+
+func (b *IrcBot) joinChannel(name string) {
+	b.rooms = append(b.rooms, name)
+	b.writer.Encode(&irc.Message{
+		Command: irc.JOIN,
+		Params:  []string{"#" + name},
+	})
+}
+
+func (b *IrcBot) partChannel(name string) {
+	var index int
+	for i, v := range b.rooms {
+		if v == name {
+			index = i
+		}
+	}
+	b.rooms = append(b.rooms[:index], b.rooms[index+1:]...)
+
+	b.writer.Encode(&irc.Message{
+		Command: irc.PART,
+		Params:  []string{"#" + name},
+	})
 }
 
 func (b *IrcBot) connect() error {

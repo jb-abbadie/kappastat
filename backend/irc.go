@@ -26,7 +26,6 @@ func setupChat() *IrcBot {
 
 func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 	bot := setupChat()
-	var followed []string
 	for {
 		select {
 		case msg, ok := <-bot.data:
@@ -34,16 +33,16 @@ func loopChat(c chan Message, infos chan kappastat.ChatEntry) {
 				bot.reconnect()
 				log.Print("Reconnected ", msg)
 			} else {
-				go messageHandler(followed, bot.writer, infos, msg)
+				go messageHandler(bot.writer, infos, msg)
 			}
 		case msg, ok := <-c:
 			if !ok {
 				return
 			}
 			if msg.s == AddStream {
-				followed = addChannel(followed, bot.writer, msg.v)
+				bot.joinChannel(msg.v)
 			} else if msg.s == RemoveStream {
-				followed = removeChannel(followed, bot.writer, msg.v)
+				bot.partChannel(msg.v)
 			}
 		}
 	}
@@ -74,7 +73,7 @@ func removeChannel(f []string, s *irc.Encoder, name string) []string {
 	return f
 }
 
-func messageHandler(f []string, s *irc.Encoder, infos chan kappastat.ChatEntry, m *irc.Message) {
+func messageHandler(s *irc.Encoder, infos chan kappastat.ChatEntry, m *irc.Message) {
 	handled := make(map[string]bool)
 	handled[irc.PING] = true
 	handled[irc.PRIVMSG] = true
@@ -102,11 +101,8 @@ func messageHandler(f []string, s *irc.Encoder, infos chan kappastat.ChatEntry, 
 		return
 	} else if m.Command == irc.PRIVMSG {
 		PrivmsgHandler(infos, m)
-	} else if m.Command == irc.RPL_ENDOFMOTD {
-		for i := range f {
-			addChannel(f, s, f[i])
-		}
-		log.Print("Re joined", len(f))
+	} else if m.Command == irc.JOIN {
+		log.Print("Joined new channel ", m)
 	}
 }
 
