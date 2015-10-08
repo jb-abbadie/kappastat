@@ -30,6 +30,7 @@ func launchFrontend() {
 	r.Get("/following", followHandler)
 	r.Get("/stat", statHandler)
 	r.Get("/viewer", viewerHandler)
+	r.Get("/channel", channelHandler)
 	r.Get("/add/:streamer", addHandler)
 	r.Get("/del/:streamer", delHandler)
 	r.Get("/api/viewer/:streamer", apiViewer)
