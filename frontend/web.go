@@ -16,6 +16,7 @@ var templates = template.Must(template.ParseFiles("templates/following.html",
 	"templates/stat.html",
 	"templates/index.html",
 	"templates/head.inc",
+	"templates/channel.html",
 	"templates/header.inc"))
 
 func launchFrontend() {
@@ -33,6 +34,7 @@ func launchFrontend() {
 	r.Get("/del/:streamer", delHandler)
 	r.Get("/api/viewer/:streamer", apiViewer)
 	r.Get("/api/stat/:streamer", apiStat)
+	r.Get("/api/channel/:streamer", apiStat)
 	r.Get("/api/following", apiFollowing)
 	db := getDB()
 	m.Map(db)
@@ -61,6 +63,11 @@ func viewerHandler(w http.ResponseWriter, r *http.Request) {
 func statHandler(w http.ResponseWriter, r *http.Request) {
 	views := []kappastat.ViewerCount{}
 	templates.ExecuteTemplate(w, "stat.html", views)
+}
+
+func channelHandler(w http.ResponseWriter, r *http.Request) {
+	views := []kappastat.ViewerCount{}
+	templates.ExecuteTemplate(w, "channel.html", views)
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
