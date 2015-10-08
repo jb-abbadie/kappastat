@@ -4,12 +4,23 @@
     <body role="document">
         {{template "header"}}
         <div class="container">
-            <h1>Streamer</h1>
-            <ul>
-                <li>Name : </li>
-                <li>Channel : </li>
-            </ul>
+            <h1>Test</h1>
+            <div class="row">
+                <div class="six columns">
+                    <h2>Streamer</h2>
+                    <ul>
+                        <li>Name: <span id="chan_name"></span></li>
+                        <li>Channel: <span id="chan_url"></span></li>
+                    </ul>
+                </div>
+                <div class="six columns">
+                    <h2>Stat</h2>
+                    <ul>
+                        <li>Average Viewership: <span id="viewer"></span></li>
+                        <li>Number of Subscriber: <span id="sub"></span></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-
     </body>
 </html>
