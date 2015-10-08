@@ -17,15 +17,6 @@ func getDB() *mgo.Database {
 	return (temp.DB("twitch"))
 }
 
-func apiViewer(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	var ret []kappastat.ViewerCount
-	db := getDB()
-	db.C("viewer_count").Find(bson.M{"channel": params["streamer"]}).All(&ret)
-	data, _ := json.Marshal(ret)
-	w.Write(data)
-
-}
-
 func apiFollowing(w http.ResponseWriter, r *http.Request) {
 	var ret []twitch.UserS
 	db := getDB()

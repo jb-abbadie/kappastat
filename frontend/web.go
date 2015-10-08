@@ -29,11 +29,9 @@ func launchFrontend() {
 	r.Get("/", indexHandler)
 	r.Get("/following", followHandler)
 	r.Get("/stat", statHandler)
-	r.Get("/viewer", viewerHandler)
-	r.Get("/channel", channelHandler)
+	r.Get("/channel/:streamer", channelHandler)
 	r.Get("/add/:streamer", addHandler)
 	r.Get("/del/:streamer", delHandler)
-	r.Get("/api/viewer/:streamer", apiViewer)
 	r.Get("/api/stat/:streamer", apiStat)
 	r.Get("/api/channel/:streamer", apiStat)
 	r.Get("/api/following", apiFollowing)
@@ -54,11 +52,6 @@ func followHandler(w http.ResponseWriter, r *http.Request) {
 	db := getDB()
 	db.C("follow").Find(nil).All(&liste)
 	templates.ExecuteTemplate(w, "following.html", liste)
-}
-
-func viewerHandler(w http.ResponseWriter, r *http.Request) {
-	views := []kappastat.ViewerCount{}
-	templates.ExecuteTemplate(w, "viewer.html", views)
 }
 
 func statHandler(w http.ResponseWriter, r *http.Request) {
