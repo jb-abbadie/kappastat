@@ -2,7 +2,6 @@ $(function() {
     $('#list_streams').hide();
     $('#list_duration').hide();
     $('#go_button').hide();
-    //$('#curve_chart').hide();
     $.getJSON("/api/following", listFollowing);
     var chart = initChart();
     updateChart(chart,[["Time","Viewers"],[0,0],[1,0]])
