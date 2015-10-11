@@ -36,7 +36,9 @@ func launchFrontend() {
 	r.Get("/api/channel/:streamer", apiStat)
 	r.Get("/api/following", apiFollowing)
 	db := getDB()
+	redis := getRedis()
 	m.Map(db)
+	m.Map(redis)
 
 	m.Action(r.Handle)
 	log.Print("Started Web Server")
@@ -64,24 +66,12 @@ func channelHandler(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "channel.html", views)
 }
 
-func addHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-	client.LPush("add", params["streamer"])
-	client.Close()
+func addHandler(w http.ResponseWriter, params martini.Params, redis *redis.Client) {
+	redis.LPush("add", params["streamer"])
 	fmt.Fprintf(w, "Added %s", params["streamer"])
 }
 
-func delHandler(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-	client.LPush("del", params["streamer"])
-	client.Close()
+func delHandler(w http.ResponseWriter, params martini.Params, redis *redis.Client) {
+	redis.LPush("del", params["streamer"])
 	fmt.Fprintf(w, "Removed %s", params["streamer"])
 }

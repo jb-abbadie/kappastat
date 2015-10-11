@@ -50,6 +50,9 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 	}
 }
 
+func processBroadcast(db *mgo.Database, channels) {
+}
+
 func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret kappastat.StatEntry) {
 	ret.Channel = channel
 	ret.Duration = duration
