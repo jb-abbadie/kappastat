@@ -4,11 +4,6 @@ import (
 	"time"
 )
 
-type Histo struct {
-	viewers  map[time.Time]int
-	streamer string
-}
-
 type ViewerCount struct {
 	Channel string
 	Time    time.Time
@@ -36,4 +31,20 @@ type StatEntry struct {
 	MostUsedTerm  []string
 	Viewer        int
 	NonZeroViewer int
+}
+
+type Broadcast struct {
+	Start time.Time
+	End   time.Time
+
+	Channel string
+	Game    string
+	Name    string
+
+	AverageViewership int
+	MinViewership     int
+	MaxViewership     int
+
+	Sub   int
+	ReSub int
 }

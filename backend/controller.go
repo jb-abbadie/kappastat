@@ -37,6 +37,7 @@ type Signal int
 const (
 	AddStream Signal = iota
 	RemoveStream
+	EndBroadcast
 	Stop
 	Restart
 )

@@ -4,6 +4,8 @@ import (
 	"github.com/grsakea/kappastat/common"
 	"github.com/robfig/cron"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"log"
 	"strings"
 	"time"
 )
@@ -31,7 +33,11 @@ func loopStat(ch chan Message, db *mgo.Database) {
 	for {
 		select {
 		case msg := <-ch:
-			followed = followedHandler(followed, msg)
+			if msg.s == EndBroadcast {
+				processBroadcast(db, msg.v)
+			} else {
+				followed = followedHandler(followed, msg)
+			}
 		}
 
 	}
@@ -50,7 +56,10 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 	}
 }
 
-func processBroadcast(db *mgo.Database, channels) {
+func processBroadcast(db *mgo.Database, channel string) {
+	var v kappastat.ViewerCount
+	db.C("stat_entries").Find(bson.M{"channel": channel}).Sort("-Time").One(&v)
+	log.Print(v)
 }
 
 func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret kappastat.StatEntry) {
