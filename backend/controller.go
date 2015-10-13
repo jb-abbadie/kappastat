@@ -36,7 +36,7 @@ type StorageController struct {
 type Signal int
 
 const (
-	AddStream Signal = iota
+	AddStream Signal = iota + 1
 	RemoveStream
 	StartBroadcast
 	EndBroadcast
