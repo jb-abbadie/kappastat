@@ -19,6 +19,7 @@ type Controller struct {
 	cViewer     chan Message
 	cChat       chan Message
 	cStat       chan Message
+	cBroadcast  chan Message
 	tracked     map[string]bool
 	storage     StorageController
 	comm        *redis.Client
@@ -37,6 +38,7 @@ type Signal int
 const (
 	AddStream Signal = iota
 	RemoveStream
+	StartBroadcast
 	EndBroadcast
 	Stop
 	Restart
@@ -50,9 +52,9 @@ type Message struct {
 func (c *Controller) Loop() {
 	log.Print("Start Loop")
 
-	go loopViewers(c.twitchAPI, c.cViewer, c.infosViewer)
+	go loopViewers(c.twitchAPI, c.cViewer, c.cBroadcast, c.infosViewer)
 	go loopChat(c.cChat, c.infosChat)
-	go loopStat(c.cStat, c.storage.db)
+	go loopStat(c.cStat, c.cBroadcast, c.storage.db)
 
 	t := time.NewTicker(time.Minute).C
 

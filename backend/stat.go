@@ -17,7 +17,7 @@ type statData struct {
 	lenV int
 }
 
-func loopStat(ch chan Message, db *mgo.Database) {
+func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 	followed := []string{}
 
 	c := cron.New()
@@ -33,13 +33,12 @@ func loopStat(ch chan Message, db *mgo.Database) {
 	for {
 		select {
 		case msg := <-ch:
+			followed = followedHandler(followed, msg)
+		case msg := <-cBroad:
 			if msg.s == EndBroadcast {
 				processBroadcast(db, msg.v)
-			} else {
-				followed = followedHandler(followed, msg)
 			}
 		}
-
 	}
 }
 
