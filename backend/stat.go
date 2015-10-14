@@ -19,6 +19,7 @@ type statData struct {
 
 func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 	followed := []string{}
+	liveBroadcast := make(map[string]time.Time)
 
 	c := cron.New()
 
@@ -35,8 +36,10 @@ func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 		case msg := <-ch:
 			followed = followedHandler(followed, msg)
 		case msg := <-cBroad:
-			if msg.s == EndBroadcast {
-				processBroadcast(db, msg.v)
+			if msg.s == StartBroadcast {
+				addBroadcast(liveBroadcast, msg.v)
+			} else if msg.s == EndBroadcast {
+				processBroadcast(db, liveBroadcast, msg.v)
 			}
 		}
 	}
@@ -55,10 +58,13 @@ func computeStat(db *mgo.Database, channels []string, duration time.Duration) {
 	}
 }
 
-func processBroadcast(db *mgo.Database, channel string) {
-	var v kappastat.ViewerCount
-	db.C("stat_entries").Find(bson.M{"channel": channel}).Sort("-Time").One(&v)
-	log.Print(v)
+func addBroadcast(m map[string]time.Time, channel string) {
+	log.Print(channel, " Started Broadcast")
+	m[channel] = time.Now().Add(-time.Minute)
+}
+
+func processBroadcast(db *mgo.Database, m map[string]time.Time, channel string) {
+	log.Print(channel, " Ended Broadcast")
 }
 
 func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret kappastat.StatEntry) {

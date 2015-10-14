@@ -37,11 +37,9 @@ func fetchViewers(client *twitch.Client, cBroadcast chan Message, chanName strin
 	if channel.Stream.Viewers != 0 && online[chanName] == false {
 		online[chanName] = true
 		cBroadcast <- Message{StartBroadcast, chanName}
-		log.Print(chanName, " Started Broadcast")
 	} else if channel.Stream.Viewers == 0 && online[chanName] == true {
 		online[chanName] = false
 		cBroadcast <- Message{EndBroadcast, chanName}
-		log.Print(chanName, " Ended Broadcast")
 	}
 
 	return kappastat.ViewerCount{chanName, time.Now(), channel.Stream.Viewers}
