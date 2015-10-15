@@ -64,7 +64,24 @@ func addBroadcast(m map[string]time.Time, channel string) {
 }
 
 func processBroadcast(db *mgo.Database, m map[string]time.Time, channel string) {
-	log.Print(channel, " Ended Broadcast")
+	var v []kappastat.ViewerCount
+	log.Print(channel, " Ended Broadcast duration : ", m[channel].Sub(time.Now()))
+
+	ret := kappastat.Broadcast{
+		Start: m[channel],
+		End:   time.Now(),
+
+		Channel: channel,
+	}
+
+	b := bson.M{
+		"channel": channel,
+		"time":    bson.M{"gt": m[channel]}}
+	db.C("stat_entries").Find(b).All(&v)
+
+	db.C("broadcasts").Insert(ret)
+
+	log.Print(v)
 }
 
 func processStatData(from time.Time, to time.Time, duration time.Duration, channel string, data statData) (ret kappastat.StatEntry) {
