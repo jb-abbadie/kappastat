@@ -30,7 +30,7 @@ func fetchViewers(client *twitch.Client, cBroadcast chan Message, chanName strin
 	if err != nil {
 		channel, err = client.Streams.Channel(chanName)
 		if err != nil {
-			log.Print(err)
+			log.Print("Error fetching viewer : ", err)
 		}
 	}
 
@@ -39,6 +39,7 @@ func fetchViewers(client *twitch.Client, cBroadcast chan Message, chanName strin
 		cBroadcast <- Message{StartBroadcast, chanName}
 	} else if channel.Stream.Viewers == 0 && online[chanName] == true {
 		online[chanName] = false
+		log.Print("Finished broadcast")
 		cBroadcast <- Message{EndBroadcast, chanName}
 	}
 
