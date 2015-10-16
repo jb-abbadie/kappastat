@@ -75,8 +75,9 @@ func processBroadcast(db *mgo.Database, m map[string]time.Time, channel string) 
 	}
 
 	b := bson.M{
-		"channel": channel,
-		"time":    bson.M{"gt": m[channel]}}
+		"channel":  channel,
+		"Duration": 1 * time.Minute,
+		"time":     bson.M{"gt": m[channel]}}
 	db.C("stat_entries").Find(b).All(&v)
 
 	db.C("broadcasts").Insert(ret)
