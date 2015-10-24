@@ -20,7 +20,6 @@ type statData struct {
 func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 	followed := []string{}
 	liveBroadcast := make(map[string]time.Time)
-
 	c := cron.New()
 
 	c.AddFunc("0 * * * * *", func() { computeStat(db, followed, 01*time.Minute) })

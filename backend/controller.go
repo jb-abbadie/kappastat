@@ -107,6 +107,7 @@ func SetupController(dbName string) (contr *Controller) {
 		cViewer:     make(chan Message),
 		cChat:       make(chan Message),
 		cStat:       make(chan Message),
+		cBroadcast:  make(chan Message),
 		tracked:     make(map[string]bool),
 		comm:        client,
 		storage:     store,
