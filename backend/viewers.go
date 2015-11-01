@@ -23,6 +23,7 @@ func loopViewers(client *twitch.Client, c chan Message, cBroadcast chan Message,
 			}
 		}
 	}
+	log.Print("Viewer loop stopped")
 }
 
 func fetchViewers(client *twitch.Client, cBroadcast chan Message, chanName string, online map[string]bool) kappastat.ViewerCount {

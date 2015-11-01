@@ -58,11 +58,15 @@ func TestBroadcast(t *testing.T) {
 	db := session.DB("twitch_test")
 	db.DropDatabase()
 
-	c := make(chan (Message))
-	go loopStat(nil, c, db)
+	c1 := make(chan (Message))
+	c2 := make(chan (Message))
 
-	c <- Message{StartBroadcast, "test"}
+	go loopStat(c1, c2, db)
+
+	c2 <- Message{StartBroadcast, "test"}
 	time.Sleep(2 * time.Minute)
-	c <- Message{EndBroadcast, "test"}
+	c2 <- Message{EndBroadcast, "test"}
+
+	c1 <- Message{Stop, ""}
 
 }
