@@ -47,3 +47,22 @@ func TestStatProcessing(t *testing.T) {
 		t.Error("ViewerCount incorrect")
 	}
 }
+
+func TestBroadcast(t *testing.T) {
+	session, err := mgo.Dial("localhost")
+
+	if err != nil {
+		t.Error("Error connecting to the db")
+		t.FailNow()
+	}
+	db := session.DB("twitch_test")
+	db.DropDatabase()
+
+	c := make(chan (Message))
+	go loopStat(nil, c, db)
+
+	c <- Message{StartBroadcast, "test"}
+	time.Sleep(2 * time.Minute)
+	c <- Message{EndBroadcast, "test"}
+
+}
