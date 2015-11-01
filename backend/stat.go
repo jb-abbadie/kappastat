@@ -19,6 +19,7 @@ type statData struct {
 
 func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 	followed := []string{}
+	loop := true
 	liveBroadcast := make(map[string]time.Time)
 	c := cron.New()
 
@@ -30,10 +31,10 @@ func loopStat(ch chan Message, cBroad chan Message, db *mgo.Database) {
 	c.AddFunc("@daily", func() { computeStat(db, followed, 24*time.Hour) })
 
 	c.Start()
-	for {
+	for loop {
 		select {
 		case msg := <-ch:
-			followed = followedHandler(followed, msg)
+			followed, loop = followedHandler(followed, msg)
 		case msg := <-cBroad:
 			if msg.s == StartBroadcast {
 				addBroadcast(liveBroadcast, msg.v)

@@ -11,11 +11,12 @@ func loopViewers(client *twitch.Client, c chan Message, cBroadcast chan Message,
 	followed := []string{}
 	online := make(map[string]bool)
 	ticker := time.NewTicker(time.Minute).C
+	loop := true
 
-	for {
+	for loop {
 		select {
 		case msg := <-c:
-			followed = followedHandler(followed, msg)
+			followed, loop = followedHandler(followed, msg)
 		case <-ticker:
 			for _, v := range followed {
 				infos <- fetchViewers(client, cBroadcast, v, online)
