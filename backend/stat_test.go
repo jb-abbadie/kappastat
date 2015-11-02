@@ -64,6 +64,14 @@ func TestBroadcast(t *testing.T) {
 	go loopStat(c1, c2, db)
 
 	c2 <- Message{StartBroadcast, "test"}
+	stat := kappastat.StatEntry{
+		Channel:  "test",
+		Duration: time.Minute,
+		Start:    time.Now(),
+		Messages: 2,
+		Viewer:   5,
+	}
+	db.C("stat_entries").Insert(stat)
 	time.Sleep(2 * time.Minute)
 	c2 <- Message{EndBroadcast, "test"}
 

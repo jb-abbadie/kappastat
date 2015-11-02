@@ -4,7 +4,7 @@ import (
 	"github.com/grsakea/kappastat/common"
 	"github.com/robfig/cron"
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	//"gopkg.in/mgo.v2/bson"
 	"log"
 	"strings"
 	"time"
@@ -74,15 +74,15 @@ func processBroadcast(db *mgo.Database, m map[string]time.Time, channel string) 
 		Channel: channel,
 	}
 
-	b := bson.M{
-		"channel":  channel,
-		"Duration": 1 * time.Minute,
-		"time":     bson.M{"gt": m[channel]}}
-	db.C("stat_entries").Find(b).All(&v)
-	log.Print("broadcast lasted ", len(v), " minutes")
+	//b := bson.M{
+	//"Channel":  channel,
+	//"Duration": 1 * time.Minute,
+	//"Start":    bson.M{"gt": m[channel]}}
+	db.C("stat_entries").Find(nil).All(&v)
+	log.Print("broadcast lasted ", len(v), " minutes ", m[channel])
 
 	max := 0
-	min := 0
+	min := v[0].Viewer
 	for _, i := range v {
 		view := i.Viewer
 
